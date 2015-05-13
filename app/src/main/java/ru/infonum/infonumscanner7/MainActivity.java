@@ -1,21 +1,16 @@
 package ru.infonum.infonumscanner7;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
@@ -57,6 +52,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     private String TAG = MainActivity.class.getSimpleName();
     private long currKey;
     private final int AUTOFOCUS_DELAY = 2000; // 2000 - период принудительного перезапуска автофокуса
+    public Context context = getBaseContext();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -123,39 +119,32 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         try {
-            // qumo450, nexus4-15: Error, Api16 - ok
-            // W/EGL_emulation﹕ eglSurfaceAttrib not implemented
-            // D/OpenGLRenderer﹕ Enabling debug mode 0
-            //
-            // E/AndroidRuntime﹕ FATAL EXCEPTION: main
-            // java.lang.NullPointerException at .QKActivity.surfaceCreated(QKActivity.java:91)
             camera.setPreviewDisplay(holder);
             camera.setPreviewCallback(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        Size previewSize = camera.getParameters().getPreviewSize();
-        //float aspect = (float) previewSize.width / previewSize.height; //def. соотношение сторон камеры
-        float aspect = previewSize.height / (float) previewSize.width; //соотношение сторон камеры
+        Size camPreviewSize = camera.getParameters().getPreviewSize();
+        float aspect = (float) camPreviewSize.width / camPreviewSize.height; //def. соотношение сторон камеры
+        //aspect = 1 / aspect;
 
-        LayoutParams lp = preview.getLayoutParams();
-        Camera.Parameters parameters = camera.getParameters();
-        parameters.set("orientation", "landscape"); //def="landscape"
+        LayoutParams layoutParams = preview.getLayoutParams();
+        Camera.Parameters cameraParameters = camera.getParameters();
+        cameraParameters.set("orientation", "landscape"); //def="landscape"
         //parameters.set("orientation", "portrait");
-
-        camera.setParameters(parameters);
+        camera.setParameters(cameraParameters);
 
         // Где-то ошибка в подсчетах каких-то размеров. Сканирует только при видимом размере куэра
         // примерно в 2..3 раза меньше короткой стороны прямоугольника видоискателя.
         // Помогает умножение на 2 размеров lp. Но, при каждом след. возобновлении сканирования,
         // размер изображения увеличивается вдвое, пока приложение не вылетает. Но сканирует - ОК!!!
-        lp.width = preview.getWidth(); // *2 не искажает, увеличивает область сканирования, приближает
+        layoutParams.width = preview.getWidth(); // *2 не искажает, увеличивает область сканирования, приближает
         // Берем за основу ширину экрана
         // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // рисовать его будем с соотношением строн матрицы камеры
-        lp.height = (int) (lp.width / aspect); // можно *2
-        preview.setLayoutParams(lp); // устанавливаем размеры области для рисования
+        layoutParams.height = (int) (layoutParams.width / aspect); // можно *2
+        preview.setLayoutParams(layoutParams); // устанавливаем размеры области для рисования
 
         camera.startPreview();
 
@@ -208,8 +197,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
             try {
                 Size previewSize = camera.getParameters().getPreviewSize(); // от камеры
                 Rect rect = vfv.getFramingRectInPreview();
-                LuminanceSource source = new PlanarYUVLuminanceSource(bytes, previewSize.width, previewSize.height, rect.left, rect.top,
+                LuminanceSource source = new PlanarYUVLuminanceSource(
+                        bytes, previewSize.width, previewSize.height, rect.left, rect.top,
                         rect.width(), rect.height(), false);
+                //def previewSize.width,
 
                 Map<DecodeHintType,Object> hints = new HashMap<DecodeHintType, Object>();
                 Vector<BarcodeFormat> decodeFormats = new Vector<BarcodeFormat>(1);
@@ -244,43 +235,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 e.printStackTrace();
             }
         }
-    }
-
-    // пробуем уведомления
-
-
-    public static final int NOTIFICATION_ID = 1;
-
-    public final String INFONUM_SITE = "http://infonum.ru/";
-    public final String num = "a000aa78";
-    public final String NTF_TITLE = "Инфонум: ";
-    public final String NTF_TEXT = ": Подойдите к авто!";
-    public final String NTF_SUBTEXT = "Нажмите сюда, чтобы перейти на страницу номера или смахните, чтобы удалить ";
-    public final String s = INFONUM_SITE;
-
-
-    public void sendNotification(View view) {
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(s + num));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-
-
-        Notification.Builder builder = new Notification.Builder(this)
-            .setSmallIcon(R.drawable.ic_launcher)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher))
-            .setContentTitle(NTF_TITLE + num)
-            .setContentText(num + NTF_TEXT);
-            //.setSubText(INFONUM_SITE + num + NTF_SUBTEXT);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(
-            NOTIFICATION_SERVICE);
-
-        notificationManager.notify(NOTIFICATION_ID, builder.getNotification());
-    //notificationManager.notify(NOTIFICATION_ID, builder.build());
-    //notificationManager.notify(NOTIFICATION_ID, build());
-
     }
 
 }
