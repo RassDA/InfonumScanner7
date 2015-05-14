@@ -70,10 +70,11 @@ public final class ViewfinderView extends View {
   private final int resultPointColor;
   private List<ResultPoint> possibleResultPoints;
   private List<ResultPoint> lastPossibleResultPoints;
-    private String TAG = ViewfinderView.class.getSimpleName();
-    private Rect framingRect,framingRectInPreview;
+  private String TAG = ViewfinderView.class.getSimpleName();
+  private Rect framingRect,framingRectInPreview;
 
   // This constructor is used when the class is built from an XML resource.
+
   public ViewfinderView(Context context, AttributeSet attrs) {
     super(context, attrs);
 
@@ -96,15 +97,15 @@ public final class ViewfinderView extends View {
     Rect frame = getFramingRect();
     int width = canvas.getWidth();
     int height = canvas.getHeight();
-/*   отключено затемнение обрамления, скачущие точки
+///*   отключено затемнение обрамления, скачущие точки
+
     // Затемняем обрамление.
     // Draw the exterior (i.e. outside the framing rect) darkened
-//++++++ откл
-    //paint.setColor(resultBitmap != null ? resultColor : maskColor);
-    //canvas.drawRect(0, 0, width, frame.top, paint);
-    //canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-    //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-    //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+    paint.setColor(resultBitmap != null ? resultColor : maskColor);
+    canvas.drawRect(0, 0, width, frame.top, paint);
+    canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
+    canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
+    canvas.drawRect(0, frame.bottom + 1, width, height, paint);
 
     if (resultBitmap != null) {
       // Рисуем прозрачным получившийся битмап сквозь прямоугольник сканирования
@@ -159,10 +160,14 @@ public final class ViewfinderView extends View {
                             frame.right + POINT_SIZE,
                             frame.bottom + POINT_SIZE);
     }
-*/
+//*/
   }
 
   public void addPossibleResultPoint(ResultPoint point) {
+        /*
+         *
+         */
+
     List<ResultPoint> points = possibleResultPoints;
     synchronized (points) {
       points.add(point);
@@ -175,6 +180,10 @@ public final class ViewfinderView extends View {
   }
 
     public synchronized Rect getFramingRectInPreview() {
+        /*
+         *
+         */
+
         if (framingRectInPreview == null) {
             if (camera==null) throw new IllegalStateException("Camera is null!");
             Rect framingRect = getFramingRect();
@@ -198,6 +207,10 @@ public final class ViewfinderView extends View {
     }
 
     public synchronized Rect getFramingRect() {
+        /*
+         *
+         */
+
         if (framingRect == null) {
             Point screenResolution = getScreenResolution();
             if (screenResolution == null) {
@@ -220,6 +233,10 @@ public final class ViewfinderView extends View {
 
 
     private static int findDesiredDimensionInRange(int resolution, int hardMin, int hardMax) {
+        /*
+         *
+         */
+
         int dim = resolution / 2; // Target 50% of each dimension
         if (dim < hardMin) {
             return hardMin;
@@ -230,11 +247,20 @@ public final class ViewfinderView extends View {
         return dim;
     }
 
+
     private Point getScreenResolution() {
+        /* Определяет разрешение экрана и возвращает в виде, где ширина всегда больше высоты
+         *
+         */
         WindowManager manager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = manager.getDefaultDisplay();
-        int width = display.getWidth();
-        int height = display.getHeight();
+        //int width = display.getWidth(); //deprecated
+        //int height = display.getHeight(); //deprecated
+        Point point = null;
+        display.getSize(point);
+        int height = point.y;
+        int width = point.x;
+
         // Работает только landscape.
         // Когда не landscape, предполагается, что это ошибка и переключается в него.
         // We're landscape-only, and have apparently seen issues with display thinking it's portrait
@@ -250,6 +276,9 @@ public final class ViewfinderView extends View {
     }
 
     private Point findBestPreviewSizeValue(Camera.Parameters parameters) {
+        /*
+         *
+         */
 
         List<Camera.Size> rawSupportedSizes = parameters.getSupportedPreviewSizes();
         if (rawSupportedSizes == null) {
