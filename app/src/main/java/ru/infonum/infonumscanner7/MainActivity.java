@@ -79,12 +79,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         surfaceHolder.addCallback(this);   // хотим получать соответствующие обратные вызовы.
         // будем отрисовывать картинку с камеры и...
         fl.addView(preview, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-        vfv = new ViewfinderView(this, null);
-        // ...и видоискатель поверх
 
+        //---убираем эффекты видоискателя
+        vfv = new ViewfinderView(this, null);
+
+        // ...и видоискатель поверх
         // если убрать - не показывает видоискатель и точки, но сканирует не хуже.
         // Требуется размер куэр 1/4 ширины экрана.
-        fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
+        //---убираем эффекты видоискателя
+        //fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         setContentView(fl);// падает в api14
 

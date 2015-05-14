@@ -49,10 +49,10 @@ import java.util.List;
  */
 public final class ViewfinderView extends View {
 
-  private static final long ANIMATION_DELAY = 80L;
-  private static final int CURRENT_POINT_OPACITY = 0xA0; // не влияет?
-  private static final int MAX_RESULT_POINTS = 20;
-  private static final int POINT_SIZE = 12; //def=6 - диаметр жетых точек при распознавании
+    private static final long ANIMATION_DELAY = 80L;
+    private static final int CURRENT_POINT_OPACITY = 0xA0; // не влияет?
+    private static final int MAX_RESULT_POINTS = 20;
+    private static final int POINT_SIZE = 12; //def=6 - диаметр жетых точек при распознавании
 
     private static final int MIN_FRAME_WIDTH = 240;
     private static final int MIN_FRAME_HEIGHT = 240;
@@ -62,122 +62,123 @@ public final class ViewfinderView extends View {
     private static final int MIN_PREVIEW_PIXELS = 470 * 320; // normal screen
     private static final int MAX_PREVIEW_PIXELS = 1280 * 800;
 
-  private Camera camera;
-  private final Paint paint;
-  private Bitmap resultBitmap;
-  private final int maskColor;
-  private final int resultColor;
-  private final int resultPointColor;
-  private List<ResultPoint> possibleResultPoints;
-  private List<ResultPoint> lastPossibleResultPoints;
-  private String TAG = ViewfinderView.class.getSimpleName();
-  private Rect framingRect,framingRectInPreview;
+    private Camera camera;
+    private final Paint paint;
+    private Bitmap resultBitmap;
+    private final int maskColor;
+    private final int resultColor;
+    private final int resultPointColor;
+    private List<ResultPoint> possibleResultPoints;
+    private List<ResultPoint> lastPossibleResultPoints;
+    private String TAG = ViewfinderView.class.getSimpleName();
+    private Rect framingRect,framingRectInPreview;
 
-  // This constructor is used when the class is built from an XML resource.
+    // This constructor is used when the class is built from an XML resource.
 
-  public ViewfinderView(Context context, AttributeSet attrs) {
-    super(context, attrs);
+    public ViewfinderView(Context context, AttributeSet attrs) {
+        super(context, attrs);
 
-    // Initialize these once for performance rather than calling them every time in onDraw().
-    paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    Resources resources = getResources();
-    maskColor = resources.getColor(R.color.viewfinder_mask);
-    resultColor = resources.getColor(R.color.result_view);
-    resultPointColor = resources.getColor(R.color.possible_result_points);
-    possibleResultPoints = new ArrayList<ResultPoint>(5);
-    lastPossibleResultPoints = null;
-  }
+        // Initialize these once for performance rather than calling them every time in onDraw().
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        Resources resources = getResources();
+        maskColor = resources.getColor(R.color.viewfinder_mask);
+        resultColor = resources.getColor(R.color.result_view);
+        resultPointColor = resources.getColor(R.color.possible_result_points);
+        possibleResultPoints = new ArrayList<ResultPoint>(5);
+        lastPossibleResultPoints = null;
+    }
 
-  public void setCamera(Camera camera) {
+    public void setCamera(Camera camera) {
     this.camera = camera;
   }
 
-  @Override
-  public void onDraw(Canvas canvas) {
-    Rect frame = getFramingRect();
-    int width = canvas.getWidth();
-    int height = canvas.getHeight();
-///*   отключено затемнение обрамления, скачущие точки
+    @Override
+    public void onDraw(Canvas canvas) {
+        Rect frame = getFramingRect();
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+///*   отключает затемнение обрамления видоискателя, скачущие точки
 
-    // Затемняем обрамление.
-    // Draw the exterior (i.e. outside the framing rect) darkened
-    paint.setColor(resultBitmap != null ? resultColor : maskColor);
-    canvas.drawRect(0, 0, width, frame.top, paint);
-    canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-    canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-    canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+        // Затемняем обрамление.
+        // Draw the exterior (i.e. outside the framing rect) darkened
+        paint.setColor(resultBitmap != null ? resultColor : maskColor);
+        canvas.drawRect(0, 0, width, frame.top, paint);
+        canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
+        canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
+        canvas.drawRect(0, frame.bottom + 1, width, height, paint);
 
-    if (resultBitmap != null) {
-      // Рисуем прозрачным получившийся битмап сквозь прямоугольник сканирования
-      // Draw the opaque result bitmap over the scanning rectangle
-      paint.setAlpha(CURRENT_POINT_OPACITY);
-      canvas.drawBitmap(resultBitmap, null, frame, paint);
-    } else {
+        if (resultBitmap != null) {
+            // Рисуем прозрачным получившийся битмап сквозь прямоугольник сканирования
+            // Draw the opaque result bitmap over the scanning rectangle
+            paint.setAlpha(CURRENT_POINT_OPACITY);
+            canvas.drawBitmap(resultBitmap, null, frame, paint);
+        } else {
 
-      Rect previewFrame = getFramingRectInPreview();
-      float scaleX = frame.width() / (float) previewFrame.width();
-      float scaleY = frame.height() / (float) previewFrame.height();
+            Rect previewFrame = getFramingRectInPreview();
+            float scaleX = frame.width() / (float) previewFrame.width();
+            float scaleY = frame.height() / (float) previewFrame.height();
 
-      List<ResultPoint> currentPossible = possibleResultPoints;
-      List<ResultPoint> currentLast = lastPossibleResultPoints;
-      int frameLeft = frame.left;
-      int frameTop = frame.top;
-      if (currentPossible.isEmpty()) {
-        lastPossibleResultPoints = null;
-      } else {
-        possibleResultPoints = new ArrayList<ResultPoint>(5);
-        lastPossibleResultPoints = currentPossible;
-        paint.setAlpha(CURRENT_POINT_OPACITY);
-        paint.setColor(resultPointColor);
-        synchronized (currentPossible) {
-          for (ResultPoint point : currentPossible) {
-            canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
-                              frameTop + (int) (point.getY() * scaleY),
-                              POINT_SIZE, paint);
-          }
-        }
-      }
-      if (currentLast != null) {
-        paint.setAlpha(CURRENT_POINT_OPACITY / 2);
-        paint.setColor(resultPointColor);
-        synchronized (currentLast) {
-          float radius = POINT_SIZE / 2.0f;
-          for (ResultPoint point : currentLast) {
-            canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
+            List<ResultPoint> currentPossible = possibleResultPoints;
+            List<ResultPoint> currentLast = lastPossibleResultPoints;
+            int frameLeft = frame.left;
+            int frameTop = frame.top;
+            if (currentPossible.isEmpty()) {
+            lastPossibleResultPoints = null;
+            } else {
+                possibleResultPoints = new ArrayList<ResultPoint>(5);
+                lastPossibleResultPoints = currentPossible;
+                paint.setAlpha(CURRENT_POINT_OPACITY);
+                paint.setColor(resultPointColor);
+                synchronized (currentPossible) {
+                    for (ResultPoint point : currentPossible) {
+                        canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
+                                frameTop + (int) (point.getY() * scaleY),
+                                POINT_SIZE, paint);
+                    }
+                }
+            }
+
+            if (currentLast != null) {
+                paint.setAlpha(CURRENT_POINT_OPACITY / 2);
+                paint.setColor(resultPointColor);
+                synchronized (currentLast) {
+                    float radius = POINT_SIZE / 2.0f;
+                    for (ResultPoint point : currentLast) {
+                        canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
                               frameTop + (int) (point.getY() * scaleY),
                               radius, paint);
-          }
+                    }
+                }
+            }
+
+            // Запрос обновления по периоду анимации, перерисовывается только линия лазера.
+            // но не вся маска видоискателя.
+            // Request another update at the animation interval, but only repaint the laser line,
+            // not the entire viewfinder mask.
+            postInvalidateDelayed(ANIMATION_DELAY,
+                        frame.left - POINT_SIZE,
+                        frame.top - POINT_SIZE,
+                        frame.right + POINT_SIZE,
+                        frame.bottom + POINT_SIZE);
         }
-      }
-
-      // Запрос обновления по периоду анимации, перерисовывается только линия лазера.
-      // но не вся маска видоискателя.
-      // Request another update at the animation interval, but only repaint the laser line,
-      // not the entire viewfinder mask.
-      postInvalidateDelayed(ANIMATION_DELAY,
-                            frame.left - POINT_SIZE,
-                            frame.top - POINT_SIZE,
-                            frame.right + POINT_SIZE,
-                            frame.bottom + POINT_SIZE);
-    }
 //*/
-  }
+    }
 
-  public void addPossibleResultPoint(ResultPoint point) {
+    public void addPossibleResultPoint(ResultPoint point) {
         /*
          *
          */
 
-    List<ResultPoint> points = possibleResultPoints;
-    synchronized (points) {
-      points.add(point);
-      int size = points.size();
-      if (size > MAX_RESULT_POINTS) {
-        // trim it
-        points.subList(0, size - MAX_RESULT_POINTS / 2).clear();
-      }
+        List<ResultPoint> points = possibleResultPoints;
+        synchronized (points) {
+            points.add(point);
+            int size = points.size();
+            if (size > MAX_RESULT_POINTS) {
+                // trim it
+                points.subList(0, size - MAX_RESULT_POINTS / 2).clear();
+            }
+        }
     }
-  }
 
     public synchronized Rect getFramingRectInPreview() {
         /*
@@ -186,22 +187,22 @@ public final class ViewfinderView extends View {
 
         if (framingRectInPreview == null) {
             if (camera==null) throw new IllegalStateException("Camera is null!");
-            Rect framingRect = getFramingRect();
-            if (framingRect == null) {
-                return null;
-            }
-            Rect rect = new Rect(framingRect);
-            Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
-            Point screenResolution = getScreenResolution();
-            if (cameraResolution == null || screenResolution == null) {
-                // Called early, before init even finished
-                return null;
-            }
-            rect.left = rect.left * cameraResolution.x / screenResolution.x;
-            rect.right = rect.right * cameraResolution.x / screenResolution.x;
-            rect.top = rect.top * cameraResolution.y / screenResolution.y;
-            rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-            framingRectInPreview = rect;
+                Rect framingRect = getFramingRect();
+                if (framingRect == null) {
+                    return null;
+                }
+                Rect rect = new Rect(framingRect);
+                Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
+                Point screenResolution = getScreenResolution();
+                if (cameraResolution == null || screenResolution == null) {
+                    // Called early, before init even finished
+                    return null;
+                }
+                rect.left = rect.left * cameraResolution.x / screenResolution.x;
+                rect.right = rect.right * cameraResolution.x / screenResolution.x;
+                rect.top = rect.top * cameraResolution.y / screenResolution.y;
+                rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+                framingRectInPreview = rect;
         }
         return framingRectInPreview;
     }
@@ -254,12 +255,13 @@ public final class ViewfinderView extends View {
          */
         WindowManager manager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = manager.getDefaultDisplay();
-        //int width = display.getWidth(); //deprecated
-        //int height = display.getHeight(); //deprecated
-        Point point = null;
-        display.getSize(point);
-        int height = point.y;
-        int width = point.x;
+        int width = display.getWidth(); //deprecated
+        int height = display.getHeight(); //deprecated
+
+        //Point point = null; // в таком виде замена вызывает падение
+        //display.getSize(point);
+        //int height = point.y;
+        //int width = point.x;
 
         // Работает только landscape.
         // Когда не landscape, предполагается, что это ошибка и переключается в него.
