@@ -187,29 +187,31 @@ public final class ViewfinderView extends View {
 
         if (framingRectInPreview == null) {
             if (camera==null) throw new IllegalStateException("Camera is null!");
-                Rect framingRect = getFramingRect();
-                if (framingRect == null) {
-                    return null;
-                }
-                Rect rect = new Rect(framingRect);
-                Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
-                Point screenResolution = getScreenResolution();
-                if (cameraResolution == null || screenResolution == null) {
-                    // Called early, before init even finished
-                    return null;
-                }
-                rect.left = rect.left * cameraResolution.x / screenResolution.x;
-                rect.right = rect.right * cameraResolution.x / screenResolution.x;
-                rect.top = rect.top * cameraResolution.y / screenResolution.y;
-                rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-                framingRectInPreview = rect;
+            Rect framingRect = getFramingRect();
+            if (framingRect == null) {
+                return null;
+            }
+            Rect rect = new Rect(framingRect);
+            Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
+            Point screenResolution = getScreenResolution();
+            if (cameraResolution == null || screenResolution == null) {
+                // Called early, before init even finished
+                return null;
+            }
+            rect.left = rect.left * cameraResolution.x / screenResolution.x;
+            rect.right = rect.right * cameraResolution.x / screenResolution.x;
+            rect.top = rect.top * cameraResolution.y / screenResolution.y;
+            rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+            framingRectInPreview = rect;
         }
         return framingRectInPreview;
     }
 
     public synchronized Rect getFramingRect() {
-        /*
-         *
+        /* Вычисляет предпочтительные координаты внутреннего прямоугольника обрамления=фрейма
+         * на основе разрешения экрана и констант минимальных и максимальных размеров фрейма внутри рамки.
+         * Чтобы поле для куэра не было слишком большим или маленьким.
+         * Вычисляет расположение фрейма на экране при данном разрешении экрана.
          */
 
         if (framingRect == null) {
@@ -223,19 +225,25 @@ public final class ViewfinderView extends View {
             int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
 
             // если не делить на 2, видоискатель съезжает в левый нижний угол
-            int leftOffset = (screenResolution.x - width) / 2;
-            int topOffset = (screenResolution.y - height) / 2;
-            framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+
+            //int leftOffset = (screenResolution.x - width) / 2;
+            //int topOffset = (screenResolution.y - height) / 2;
+
+            //framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+
+            //--- не используем рамку
+            framingRect = new Rect(0, 0, screenResolution.x, screenResolution.y);
+
             Log.d(TAG, "Подсчитываем размер прямоугольника рамки: " + framingRect);
-            //Log.d(TAG, "Calculated framing rect: " + framingRect);
         }
         return framingRect;
     }
 
 
     private static int findDesiredDimensionInRange(int resolution, int hardMin, int hardMax) {
-        /*
-         *
+        /* Вычисляет предпочтительные размеры фрейма для данного разрешения экрана
+         * с учетом минимального и максимального допустимого размера.
+         * Хотим фрейм приблизительно в 50% экрана.
          */
 
         int dim = resolution / 2; // Target 50% of each dimension
@@ -278,7 +286,9 @@ public final class ViewfinderView extends View {
     }
 
     private Point findBestPreviewSizeValue(Camera.Parameters parameters) {
-        /*
+        /* Определяет наилучшие размеры превью, получаемого от камеры, запрашивая их у камеры
+         * и выбирая подходящее.
+         * При невозможности определения используем значения по-умолчанию.
          *
          */
 
