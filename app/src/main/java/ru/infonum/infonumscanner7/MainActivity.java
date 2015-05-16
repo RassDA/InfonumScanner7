@@ -88,7 +88,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Требуется размер куэр 1/4 ширины экрана.
 
         //---убираем эффекты видоискателя
-        //fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         setContentView(fl);// падает в api14
 

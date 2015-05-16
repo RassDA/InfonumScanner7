@@ -300,8 +300,14 @@ public final class ViewfinderView extends View {
     }
 
     private Point findBestPreviewSizeValue(Camera.Parameters parameters) {
+
         /* Определяет наилучшие размеры превью, получаемого от камеры, запрашивая их у камеры
          * и выбирая подходящее.
+         *
+         * Переработанная функция из:
+         * zxing/android-core/src/main/java/com/google/zxing/client/android/camera/CameraConfigurationUtils.java
+         *В оригинале вместо float везде используется double
+         *
          * При невозможности определения используем значения по-умолчанию.
          * Запрашиваем у камеры список поддерживаемых разрешений превью. Если камера не дает список,
          * запрашиваем у нее значения превью по-умолчанию и работаем с ними.

@@ -28,6 +28,8 @@ import com.google.zxing.LuminanceSource;
  * YCbCr_420_SP and YCbCr_422_SP.
  *
  * @author dswitkin@google.com (Daniel Switkin)
+ *
+ * https://github.com/zxing/zxing/blob/master/core/src/main/java/com/google/zxing/PlanarYUVLuminanceSource.java
  */
 public final class PlanarYUVLuminanceSource extends LuminanceSource {
 
