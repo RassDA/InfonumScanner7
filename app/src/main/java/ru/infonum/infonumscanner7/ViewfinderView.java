@@ -349,7 +349,7 @@ public final class ViewfinderView extends View {
             }
             Log.i(TAG, "Поддерживаемые размеры превью: " + previewSizesString);
         }
-        // Далее выбираем наиболее подходящее из списка.
+        // Далее, выбираем наиболее подходящее из списка.
         // Сначала определяем физическое разрешение экрана и соотношение его сторон
         Point bestSize = null;
         Point screenResolution = getScreenResolution();

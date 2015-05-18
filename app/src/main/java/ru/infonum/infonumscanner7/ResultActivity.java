@@ -93,7 +93,7 @@ public class ResultActivity extends Activity {
 
             ss = s + "\n";
 
-            if (s.length() > 0 && s != null) {
+            if (s.length() > 0) {
 
                 Uri uri = Uri.parse(s);
                 if (uri.getHost().length() > 0)
@@ -103,7 +103,7 @@ public class ResultActivity extends Activity {
                 if (uri.getScheme() != null) {
                     if (uriScheme.equalsIgnoreCase(SMS_PREFIX)) {// *** В куэре содержится СМС
 
-                        smsTxt = s.substring(s.indexOf(":") + 1); // удаяем префикс
+                        smsTxt = s.substring(s.indexOf(":") + 1); // удаляем префикс
                         if (smsTxt.contains(":")) {
                             // предполагаем (не проверяем): номер формата +70001112222, ":", текст
                             smsNum = smsTxt.substring(0, smsTxt.indexOf(":")).trim(); // номер - до ":"
