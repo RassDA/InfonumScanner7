@@ -136,7 +136,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         float aspect = (float) camPreviewSize.width / camPreviewSize.height; //def. соотношение сторон камеры
         //aspect = 1 / aspect;
-        outStr += "camPreviewSize " + camPreviewSize + "\n";
+        outStr += "camPreviewSize.w.h " + camPreviewSize.width + camPreviewSize.height + "\n";
         outStr += "camAspect " + aspect + "\n";
 
         LayoutParams layoutParams = preview.getLayoutParams();
