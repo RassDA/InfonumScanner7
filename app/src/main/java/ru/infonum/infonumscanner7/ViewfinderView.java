@@ -221,18 +221,20 @@ public final class ViewfinderView extends View {
             // Растягиваем фрейм, вычисляем координаты положения фрейма на экране, умножая
             // на отношение разрешений камеры к экрану по каждой координате
 
-            //rect.left = rect.left * cameraResolution.x / screenResolution.x;
+            rect.left = rect.left * cameraResolution.x / screenResolution.x;
+            rect.right = rect.right * cameraResolution.x / screenResolution.x;
+            rect.top = rect.top * cameraResolution.y / screenResolution.y;
+            rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+            outStr += "rect " + rect + "\n";
+
             rect.left = 0;
-            //rect.right = rect.right * cameraResolution.x / screenResolution.x;
             rect.right = 960;
-            //rect.top = rect.top * cameraResolution.y / screenResolution.y;
             rect.top = 0;
-            //rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
             rect.bottom = 540;
 
             framingRectInPreview = rect;
-            outStr += "framingRectInPreview.l.r.t.b "
-                    + rect.left + "*" + rect.right + "*" + rect.top  + "*" + rect.bottom + "*" + "\n";
+            outStr += "framingRectInPreview.l.t.r.b "
+                    + rect.left + "*" + rect.top + "-" + rect.right + "*" + rect.bottom + "*" + "\n";
 
         }
         return framingRectInPreview;

@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Требуется размер куэр 1/4 ширины экрана.
 
         //---убирает эффекты видоискателя
-        //fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         setContentView(fl);// падает в api14
 
@@ -136,6 +136,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         float aspect = (float) camPreviewSize.width / camPreviewSize.height; //def. соотношение сторон камеры
         //aspect = 1 / aspect;
+        outStr += "camPreviewSize " + camPreviewSize + "\n";
+        outStr += "camAspect " + aspect + "\n";
 
         LayoutParams layoutParams = preview.getLayoutParams();
         Camera.Parameters cameraParameters = camera.getParameters();
@@ -217,6 +219,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, new ResultPointCallback() {
                     @Override
                     public void foundPossibleResultPoint(ResultPoint resultPoint) {
+                        outStr += "resultPoint" + resultPoint + "\n";
                         vfv.addPossibleResultPoint(resultPoint);
                     }
                 });
