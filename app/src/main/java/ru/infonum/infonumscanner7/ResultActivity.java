@@ -6,12 +6,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.view.Gravity;
-import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.UUID;
+
 
 public class ResultActivity extends Activity {
 
@@ -23,10 +21,11 @@ public class ResultActivity extends Activity {
 
         Intent intent = getIntent();
         String s = intent.getStringExtra(RESULT); // Результат распознавания
-
-        TextView tw = new TextView(this); // в новом
-        tw.setGravity(Gravity.CENTER);
-        tw.setTextSize(20); //------------------------------------ font size
+        setContentView(R.layout.result_activity);
+        //TextView tw = new TextView(this); // без xml
+        TextView tw = (TextView) findViewById(R.id.textView);
+        //tw.setGravity(Gravity.CENTER);
+        //tw.setTextSize(20); //------------------------------------ font size
 
 
         String ss = "";
@@ -60,7 +59,8 @@ public class ResultActivity extends Activity {
 
 
 
-            final String SMS_PREFIX = "SMSTO";
+            final String SMS_PREFIX = "smsto";
+            final String SMS_PREFIX2 = "sms"; // так тоже можно по мнению zxing
             final String URL_PREFIX = "http://";
             final String DEV_ID = "?deviceId=";
 
@@ -125,7 +125,7 @@ public class ResultActivity extends Activity {
                             // Отправляем смс наш номер не задавая вопросов, добавляем в текст deviceID,
                             // чтобы опознать по нему, если номер телефона еще не использовался.
                             // или чтобы связать их
-
+/*
                             try {
                                 Intent sendIntent = new Intent(Intent.ACTION_VIEW);
                                 sendIntent.putExtra("sms_body", smsTxt + DEV_ID + deviceId);
@@ -139,6 +139,7 @@ public class ResultActivity extends Activity {
                                         Toast.LENGTH_LONG).show();
                                 e.printStackTrace();
                             }
+*/
                         } else // *** смс, но не наш номер
                             ss += trNoTxt + trNoTxt1 + "\n" + smsNum + "  " + smsTxt;
                     } else if (s.substring(0, 10).toLowerCase().contains(URL_PREFIX)) { // *** В куэре содержится URL,
@@ -210,9 +211,12 @@ public class ResultActivity extends Activity {
  *           ss += "\n#";
  *           ss += trustedUrlList[1];
  */
+            ss += "\n" + ViewfinderView.outStr;
             tw.setText(ss);
 
         }
-        setContentView(tw, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        //без xml:
+        //setContentView(tw, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 }

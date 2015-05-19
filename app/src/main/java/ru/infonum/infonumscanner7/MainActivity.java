@@ -53,6 +53,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     private long currKey;
     private final int AUTOFOCUS_DELAY = 2000; // 2000 - период принудительного перезапуска автофокуса
     public Context context = getBaseContext();
+    //public static String outStr = "";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
