@@ -247,12 +247,12 @@ public final class ViewfinderView extends View {
 
             int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
             int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
-            outStr += "Desired.w.h " + width + height + "\n";
+            outStr += "Desired.w.h " + width + "*" + height + "\n";
 
             // Смещение фрейма
             int leftOffset = (screenResolution.x - width) / 2;
             int topOffset = (screenResolution.y - height) / 2;
-            outStr += "Offset.left.top " + leftOffset + + topOffset + "\n";
+            outStr += "Offset.left.top " + leftOffset  + "*" +  topOffset + "\n";
 
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
 
@@ -291,7 +291,7 @@ public final class ViewfinderView extends View {
         Display display = manager.getDefaultDisplay();
         int width = display.getWidth(); //deprecated
         int height = display.getHeight(); //deprecated
-        outStr += "Display.w.h " + width + height + "\n";
+        outStr += "Display.w.h " + width + "*" + height + "\n";
 
         //Point point = null; // в таком виде замена deprecated вызывает падение
         //display.getSize(point);
@@ -406,7 +406,6 @@ public final class ViewfinderView extends View {
             float aspectRatio = (float) maybeFlippedWidth / (float) maybeFlippedHeight;
             float newDiff = Math.abs(aspectRatio - screenAspectRatio);
             // если разницы нет - то нашли
-            outStr += "diff: " + diff + "\n";
 
             if (newDiff < diff) {
                 bestSize = new Point(realWidth, realHeight);
