@@ -89,8 +89,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // если убрать - не показывает видоискатель и точки, но сканирует не хуже.
         // Требуется размер куэр 1/4 ширины экрана.
 
-        //---убираем эффекты видоискателя
-        fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        //---убирает эффекты видоискателя
+        //fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         setContentView(fl);// падает в api14
 
@@ -116,6 +116,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
             camera.stopPreview();
             camera.release();
             camera = null;
+            outStr += "camera.release" + "\n";
         }
     }
 
