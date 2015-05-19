@@ -34,7 +34,7 @@ import java.util.Vector;
 import static android.hardware.Camera.AutoFocusCallback;
 import static android.hardware.Camera.PreviewCallback;
 import static android.hardware.Camera.open;
-
+import static ru.infonum.infonumscanner7.ViewfinderView.outStr;
 
 
 //
@@ -224,6 +224,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 rawResult = mfr.decodeWithState(bitmap);
                 if (rawResult!=null) {
                     Log.e(TAG, rawResult.getText() + " key=" + key + " currKey=" + currKey);
+                    outStr += "key=" + key + " currKey=" + currKey + "\n";
+
                     if (key==currKey) {
                         currKey = System.currentTimeMillis();
                         runOnUiThread(new Runnable() {

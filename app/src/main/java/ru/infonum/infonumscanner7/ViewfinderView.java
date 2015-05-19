@@ -204,7 +204,7 @@ public final class ViewfinderView extends View {
             if (framingRect == null) {
                 return null;
             }
-            outStr += "framingRect" + framingRect + "\n";
+            outStr += "framingRect " + framingRect + "\n";
 
             Rect rect = new Rect(framingRect);
             Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
@@ -216,7 +216,7 @@ public final class ViewfinderView extends View {
                 // вызвали слишком рано, еще не инициализировались
                 return null;
             }
-            outStr += "screenResolution" + screenResolution+ "\n";
+            outStr += "screenResolution " + screenResolution+ "\n";
 
             // Растягиваем фрейм, вычисляем координаты положения фрейма на экране, умножая
             // на отношение разрешений камеры к экрану по каждой координате
@@ -225,7 +225,7 @@ public final class ViewfinderView extends View {
             rect.top = rect.top * cameraResolution.y / screenResolution.y;
             rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
             framingRectInPreview = rect;
-            outStr += " framingRectInPreview " + framingRectInPreview + "\n";
+            outStr += "framingRectInPreview " + framingRectInPreview + "\n";
 
         }
         return framingRectInPreview;
@@ -247,17 +247,22 @@ public final class ViewfinderView extends View {
 
             int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
             int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
+            outStr += "Desired.w " + width + "\n";
+            outStr += "Desired.h " + height + "\n";
 
             // Смещение фрейма
             int leftOffset = (screenResolution.x - width) / 2;
             int topOffset = (screenResolution.y - height) / 2;
+            outStr += "Offset.left " + leftOffset + "\n";
+            outStr += "Offset.top " + topOffset + "\n";
+
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
 
             //--- когда не используем рамку
             //framingRect = new Rect(0, 0, screenResolution.x, screenResolution.y);
 
             Log.d(TAG, "Рассчитанный размер прямоугольника рамки: " + framingRect);
-            outStr += " framingRect" + framingRect + "\n";
+            outStr += "framingRect " + framingRect + "\n";
         }
         return framingRect;
     }
@@ -288,6 +293,8 @@ public final class ViewfinderView extends View {
         Display display = manager.getDefaultDisplay();
         int width = display.getWidth(); //deprecated
         int height = display.getHeight(); //deprecated
+        outStr += "Display.w " + width + "\n";
+        outStr += "Display.h " + height + "\n";
 
         //Point point = null; // в таком виде замена deprecated вызывает падение
         //display.getSize(point);
@@ -304,7 +311,7 @@ public final class ViewfinderView extends View {
         // when waking from sleep. If it's not landscape, assume it's mistaken and reverse them:
         if (width < height) {
             Log.i(TAG, "Дисплей сообщил о портретной ориентации; предполагаем, что это не правильно");
-            outStr += " Портрет=false \n";
+            outStr += "Портрет=false \n";
             int temp = width;
             width = height;
             height = temp;
@@ -333,10 +340,10 @@ public final class ViewfinderView extends View {
         List<Camera.Size> rawSupportedSizes = parameters.getSupportedPreviewSizes();
         if (rawSupportedSizes == null) {
             Log.w(TAG, "Устройство не возвращает размеры поддерживаемых превью; используем умолчания");
-            outStr += " Устройство не возвращает размеры поддерживаемых превью; используем умолчания" + "\n";
+            outStr += "Устройство не возвращает размеры поддерживаемых превью; используем умолчания" + "\n";
 
             Camera.Size defaultSize = parameters.getPreviewSize();
-            outStr += "Camera.Size:" + defaultSize + "\n";
+            outStr += "Camera.Size: " + defaultSize + "\n";
             return new Point(defaultSize.width, defaultSize.height);
         }
 
@@ -380,6 +387,7 @@ public final class ViewfinderView extends View {
             // проверяем, на выходит ли разрешение превью из списка за заданные пределы
             int realWidth = supportedPreviewSize.width;
             int realHeight = supportedPreviewSize.height;
+
             int pixels = realWidth * realHeight;
             if (pixels < MIN_PREVIEW_PIXELS || pixels > MAX_PREVIEW_PIXELS) {
                 continue;
@@ -394,7 +402,7 @@ public final class ViewfinderView extends View {
             if (maybeFlippedWidth == screenResolution.x && maybeFlippedHeight == screenResolution.y) {
                 Point exactPoint = new Point(realWidth, realHeight);
                 Log.i(TAG, "Найден размер превью, наиболее подходящий под размер экрана: " + exactPoint);
-                outStr = "Найден размер превью, наиболее подходящий под размер экрана: " + exactPoint + "\n";
+                outStr = "Размер превью, наиболее подходящий под размер экрана: " + exactPoint + "\n";
                 return exactPoint;
             }
             // сверяем соотношения сторон у экрана и превью
@@ -418,7 +426,7 @@ public final class ViewfinderView extends View {
         }
 
         Log.i(TAG, "Найден наиболее подходящий размер превью: " + bestSize);
-        outStr += "Найден наиболее подходящий размер превью: " + bestSize + "\n";
+        outStr += "bestSize " + bestSize + "\n";
 
         return bestSize;
     }
