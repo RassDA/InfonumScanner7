@@ -225,12 +225,12 @@ public final class ViewfinderView extends View {
             rect.right = rect.right * cameraResolution.x / screenResolution.x;
             rect.top = rect.top * cameraResolution.y / screenResolution.y;
             rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-            outStr += "rect " + rect + "\n";
+//            outStr += "rect " + rect + "\n";
 
-            rect.left = 0;
-            rect.right = 960;
-            rect.top = 0;
-            rect.bottom = 540;
+            //rect.left = 0;
+            //rect.right = 960;
+            //rect.top = 0;
+            //rect.bottom = 540;
 
             framingRectInPreview = rect;
             outStr += "framingRectInPreview.l.t.r.b "
