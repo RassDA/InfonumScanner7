@@ -252,7 +252,7 @@ public final class ViewfinderView extends View {
             // Смещение фрейма
             int leftOffset = (screenResolution.x - width) / 2;
             int topOffset = (screenResolution.y - height) / 2;
-            outStr += "Offset.left.top " + leftOffset + + topOffset "\n";
+            outStr += "Offset.left.top " + leftOffset + + topOffset + "\n";
 
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
 
