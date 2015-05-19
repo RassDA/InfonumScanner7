@@ -224,6 +224,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                     Log.e(TAG, rawResult.getText() + " key=" + key + " currKey=" + currKey);
                     if (key==currKey) {
                         currKey = System.currentTimeMillis();
+
+                        if (camera != null) { //--- DAR добавил
+                            camera.setPreviewCallback(null);
+                            camera.stopPreview();
+                            camera.release();
+                            camera = null;
+                        }
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
