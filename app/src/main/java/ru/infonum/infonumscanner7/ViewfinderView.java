@@ -35,6 +35,7 @@ import com.google.zxing.ResultPoint;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -49,6 +50,7 @@ import java.util.List;
  */
 public final class ViewfinderView extends View {
 
+    private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
     private static final long ANIMATION_DELAY = 80L;
     private static final int CURRENT_POINT_OPACITY = 0xA0; // не влияет?
     private static final int MAX_RESULT_POINTS = 20;
@@ -62,12 +64,16 @@ public final class ViewfinderView extends View {
     private static final int MIN_PREVIEW_PIXELS = 470 * 320; // normal screen
     private static final int MAX_PREVIEW_PIXELS = 1280 * 800;
 
+    private static final double MAX_ASPECT_DISTORTION = 0.15;
+
     private Camera camera;
     private final Paint paint;
     private Bitmap resultBitmap;
     private final int maskColor;
     private final int resultColor;
     private final int resultPointColor;
+    private int scannerAlpha;
+
     private List<ResultPoint> possibleResultPoints;
     private List<ResultPoint> lastPossibleResultPoints;
     private String TAG = ViewfinderView.class.getSimpleName();
@@ -90,18 +96,24 @@ public final class ViewfinderView extends View {
     }
 
     public void setCamera(Camera camera) {
-    this.camera = camera;
-  }
+        this.camera = camera;
+    }
 
     @Override
     public void onDraw(Canvas canvas) {
+        if (camera == null) { //from ZX
+            return; // not ready yet, early draw before done configuring
+        }
         // запрашиваем размеры светлого фрейма
         Rect frame = getFramingRect();
-        // TODO проверять frame на null
-        // определяем размеры области рисования
+        Rect previewFrame = getFramingRectInPreview();
+        if (frame == null || previewFrame == null) {
+            return;
+        }
+            // определяем размеры области рисования
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-///*   отключает затемнение обрамления видоискателя + скачущие точки
+//   отключает затемнение обрамления видоискателя + скачущие точки
 
         // Затемняем обрамление.
         // Draw the exterior (i.e. outside the framing rect) darkened
@@ -119,22 +131,35 @@ public final class ViewfinderView extends View {
             // Draw the opaque result bitmap over the scanning rectangle
             paint.setAlpha(CURRENT_POINT_OPACITY);
             canvas.drawBitmap(resultBitmap, null, frame, paint);
+
+
         } else {
+
+            // Draw a red "laser scanner" line through the middle to show decoding is active
+            // Рисуем красную линию "лазерного сканера" по середине, чтобы показать, что декодирование активно
+            //paint.setColor(laserColor);
+            paint.setColor(maskColor);
+            paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
+            scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
+
+            int middle = frame.height() / 2 + frame.top;
+            canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1, middle + 2, paint);
+
+
             // В этом случае рисуем скачушие точки = лазерная линия
             // вычисляем наилучший размер светлого фрейма
-            Rect previewFrame = getFramingRectInPreview();
+            //Rect previewFrame = getFramingRectInPreview(); //findev
             // TODO проверять previewFrame на null
             // вычисляем отношение сторон фрейма к сторонам превью
             float scaleX = frame.width() / (float) previewFrame.width();
             float scaleY = frame.height() / (float) previewFrame.height();
-
 
             List<ResultPoint> currentPossible = possibleResultPoints;
             List<ResultPoint> currentLast = lastPossibleResultPoints;
             int frameLeft = frame.left;
             int frameTop = frame.top;
             if (currentPossible.isEmpty()) {
-            lastPossibleResultPoints = null;
+                lastPossibleResultPoints = null;
             } else {
                 possibleResultPoints = new ArrayList<ResultPoint>(5);
                 lastPossibleResultPoints = currentPossible;
@@ -156,8 +181,8 @@ public final class ViewfinderView extends View {
                     float radius = POINT_SIZE / 2.0f;
                     for (ResultPoint point : currentLast) {
                         canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
-                              frameTop + (int) (point.getY() * scaleY),
-                              radius, paint);
+                                frameTop + (int) (point.getY() * scaleY),
+                                radius, paint);
                     }
                 }
             }
@@ -167,12 +192,11 @@ public final class ViewfinderView extends View {
             // Request another update at the animation interval, but only repaint the laser line,
             // not the entire viewfinder mask.
             postInvalidateDelayed(ANIMATION_DELAY,
-                        frame.left - POINT_SIZE,
-                        frame.top - POINT_SIZE,
-                        frame.right + POINT_SIZE,
-                        frame.bottom + POINT_SIZE);
+                    frame.left - POINT_SIZE,
+                    frame.top - POINT_SIZE,
+                    frame.right + POINT_SIZE,
+                    frame.bottom + POINT_SIZE);
         }
-//*/
     }
 
     public void addPossibleResultPoint(ResultPoint point) {
@@ -203,7 +227,7 @@ public final class ViewfinderView extends View {
                 return null;
             }
             Rect rect = new Rect(framingRect);
-            Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
+            Point cameraResolution = findBestPreviewSizeValue(camera.getParameters(), getScreenResolution());
             Point screenResolution = getScreenResolution();
             if (cameraResolution == null || screenResolution == null) {
                 // вызвали слишком рано, еще не инициализировались
@@ -299,12 +323,12 @@ public final class ViewfinderView extends View {
         return new Point(width, height);
     }
 
-    private Point findBestPreviewSizeValue(Camera.Parameters parameters) {
+    private Point findBestPreviewSizeValue(Camera.Parameters parameters, Point screenResolution) {
 
         /* Определяет наилучшие размеры превью, получаемого от камеры, запрашивая их у камеры
          * и выбирая подходящее.
          *
-         * Переработанная функция из:
+         * Это переработанная функция из:
          * zxing/android-core/src/main/java/com/google/zxing/client/android/camera/CameraConfigurationUtils.java
          *В оригинале вместо float везде используется double
          *
@@ -321,11 +345,14 @@ public final class ViewfinderView extends View {
         if (rawSupportedSizes == null) {
             Log.w(TAG, "Устройство не возвращает размеры поддерживаемых превью; используем умолчания");
             Camera.Size defaultSize = parameters.getPreviewSize();
+            if (defaultSize == null) {
+                throw new IllegalStateException("Parameters contained no preview size!");
+            }
             return new Point(defaultSize.width, defaultSize.height);
         }
 
-        // Сортитуем разрешения по убыванию размера
-        List<Camera.Size> supportedPreviewSizes = new ArrayList<Camera.Size>(rawSupportedSizes);
+        // Сортитуем разрешения по убыванию общего количества пикселей x*y
+        List<Camera.Size> supportedPreviewSizes = new ArrayList<>(rawSupportedSizes);
         Collections.sort(supportedPreviewSizes, new Comparator<Camera.Size>() {
             @Override
             public int compare(Camera.Size a, Camera.Size b) {
@@ -349,51 +376,64 @@ public final class ViewfinderView extends View {
             }
             Log.i(TAG, "Поддерживаемые размеры превью: " + previewSizesString);
         }
-        // Далее, выбираем наиболее подходящее из списка.
-        // Сначала определяем физическое разрешение экрана и соотношение его сторон
-        Point bestSize = null;
-        Point screenResolution = getScreenResolution();
-        float screenAspectRatio = (float) screenResolution.x / (float) screenResolution.y;
 
-        float diff = Float.POSITIVE_INFINITY;
-        // Перебираем разрешения превью из списка
-        for (Camera.Size supportedPreviewSize : supportedPreviewSizes) {
-            // проверяем, на выходит ли разрешение превью из списка за заданные пределы
+        double screenAspectRatio = (double) screenResolution.x / (double) screenResolution.y;
+
+        // удаляем неподходящие размеры из списка
+        Iterator<Camera.Size> it = supportedPreviewSizes.iterator();
+        while (it.hasNext()) {
+            Camera.Size supportedPreviewSize = it.next();
             int realWidth = supportedPreviewSize.width;
             int realHeight = supportedPreviewSize.height;
-            int pixels = realWidth * realHeight;
-            if (pixels < MIN_PREVIEW_PIXELS || pixels > MAX_PREVIEW_PIXELS) {
+            if (realWidth * realHeight < MIN_PREVIEW_PIXELS) {
+                it.remove();
                 continue;
             }
 
+            // Далее, выбираем наиболее подходящее из списка.
+            // Сначала определяем физическое разрешение экрана и соотношение его сторон
             // проверяем ориентацию превью и исправляем на горизонтальную
             boolean isCandidatePortrait = realWidth < realHeight;
             int maybeFlippedWidth = isCandidatePortrait ? realHeight : realWidth;
             int maybeFlippedHeight = isCandidatePortrait ? realWidth : realHeight;
-            //если размер превью в точности равен размеру экрана - ок
+            double aspectRatio = (double) maybeFlippedWidth / (double) maybeFlippedHeight;
+            double distortion = Math.abs(aspectRatio - screenAspectRatio);
+            if (distortion > MAX_ASPECT_DISTORTION) {
+                it.remove();
+                continue;
+            }
+
             if (maybeFlippedWidth == screenResolution.x && maybeFlippedHeight == screenResolution.y) {
                 Point exactPoint = new Point(realWidth, realHeight);
                 Log.i(TAG, "Найден размер превью, наиболее подходящий под размер экрана: " + exactPoint);
                 return exactPoint;
             }
-            // сверяем соотношения сторон у экрана и превью
-            float aspectRatio = (float) maybeFlippedWidth / (float) maybeFlippedHeight;
-            float newDiff = Math.abs(aspectRatio - screenAspectRatio);
-            // если разницы нет - то нашли
-            if (newDiff < diff) {
-                bestSize = new Point(realWidth, realHeight);
-                diff = newDiff;
-            }
+        }
+        //если размер превью в точности равен размеру экрана - ок
+        // если нет совпадающего, используем самое большое разрешение превью.
+        // Это нехорошо для устройств со слабым CPU. Разрабы надеются, что сюда попадут только
+        // с устройствами на Андроидом 4+, которые помощнее, чем совсем старые.
+
+        if (!supportedPreviewSizes.isEmpty()) {
+            Camera.Size largestPreview = supportedPreviewSizes.get(0);
+            Point largestSize = new Point(largestPreview.width, largestPreview.height);
+            Log.i(TAG, "Используем наибольшее из подходящих разрешений: " + largestSize);
+            return largestSize;
         }
 
-        // раз не нашли равного, используем значение по-умолчанию от камеры
-        if (bestSize == null) {
-            Camera.Size defaultSize = parameters.getPreviewSize();
-            bestSize = new Point(defaultSize.width, defaultSize.height);
-            Log.i(TAG, "Нет подходящих по размеру превью, используем по-умолчанию: " + bestSize);
+        // If there is nothing at all suitable, return current preview size
+        // Если ничего не подходит, возвращаем текущее разрешение превью
+        Camera.Size defaultPreview = parameters.getPreviewSize();
+        if (defaultPreview == null) {
+            throw new IllegalStateException("Parameters contained no preview size!");
         }
 
-        Log.i(TAG, "Найден наиболее подходящий размер превью: " + bestSize);
-        return bestSize;
+        Point defaultSize = new Point(defaultPreview.width, defaultPreview.height);
+        Log.i(TAG, "No suitable preview sizes, using default: " + defaultSize);
+        return defaultSize;
     }
+
+
+
+
 }
