@@ -106,6 +106,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         camera = open();
         vfv.setCamera(camera);
         currKey = System.currentTimeMillis();  // сохраняем текущее время
+        outStr += "camera.open" + "\n";
     }
 
     @Override
