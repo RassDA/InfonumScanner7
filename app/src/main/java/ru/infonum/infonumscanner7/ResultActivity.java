@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import java.util.UUID;
 
@@ -23,7 +23,7 @@ public class ResultActivity extends Activity {
         String s = intent.getStringExtra(RESULT); // Результат распознавания
         setContentView(R.layout.result_activity);
         //TextView tw = new TextView(this); // без xml
-        TextView tw = (TextView) findViewById(R.id.textView);
+        EditText tw = (EditText) findViewById(R.id.textView);
         //tw.setGravity(Gravity.CENTER);
         //tw.setTextSize(20); //------------------------------------ font size
 

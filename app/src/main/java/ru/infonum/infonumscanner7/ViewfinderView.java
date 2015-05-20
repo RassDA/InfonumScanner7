@@ -217,6 +217,10 @@ public final class ViewfinderView extends View {
                 return null;
             }
             outStr += "screenResolution " + screenResolution+ "\n";
+            outStr += "cameraResolution.x / screenResolution.x" + cameraResolution.x / screenResolution.x + "\n";
+            outStr += "cameraResolution.y / screenResolution.y" + cameraResolution.y / screenResolution.y + "\n";
+
+            // =1 !!!
 
             // Растягиваем фрейм, вычисляем координаты положения фрейма на экране, умножая
             // на отношение разрешений камеры к экрану по каждой координате
@@ -225,7 +229,7 @@ public final class ViewfinderView extends View {
             rect.right = rect.right * cameraResolution.x / screenResolution.x;
             rect.top = rect.top * cameraResolution.y / screenResolution.y;
             rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-//            outStr += "rect " + rect + "\n";
+            outStr += "rect " + rect + "\n";
 
             //rect.left = 0;
             //rect.right = 960;
