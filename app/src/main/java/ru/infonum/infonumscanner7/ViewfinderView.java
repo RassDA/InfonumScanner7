@@ -97,20 +97,38 @@ public final class ViewfinderView extends View {
 
     @Override
     public void onDraw(Canvas canvas) {
-        // запрашиваем размеры светлого фрейма
+        /*  Рисует полную картину на экране при запросе перерисовки
+         *
+         *  На экране рисуются:
+         *  - превью с камеры, приведенное к размеру экрана
+         *  - поверх - затемняющая рамка, оставляющая светлый прямоугольник в центре
+         *  - поверх - лазерные точки в местах распознания маркеров куэра
+         *
+         *
+         *
+         *
+         *
+         *
+         *
+         */
+
+
+        // Получаем координаты центрального половинного фрейма
         Rect frame = getFramingRect();
         // TODO проверять frame на null
         // определяем размеры области рисования
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-///*   отключает затемнение обрамления видоискателя + скачущие точки
+///*--- отключает затемнение обрамления видоискателя + скачущие точки
+
+        //устанавливаем цвет заливки фрейма
+        paint.setColor(resultBitmap != null ? resultColor : maskColor);
 
         // Затемняем обрамление.
         // Draw the exterior (i.e. outside the framing rect) darkened
         // 1. Рисуем темную полосу по всей ширине экрана до верха светлой части
         // 2,3. Рисуем темные прямоугольники слева и справа от светлой части по ее высоте
         // 4. Рисуем темную полосу по всей ширине экрана от низа светлой части
-        paint.setColor(resultBitmap != null ? resultColor : maskColor);
         canvas.drawRect(0, 0, width, frame.top, paint);
         canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
         canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
@@ -118,15 +136,18 @@ public final class ViewfinderView extends View {
 
         if (resultBitmap != null) {
             // Рисуем прозрачным получившийся битмап поверх прямоугольника для сканирования
+            // то есть, стираем предыдущие точки, если новых нет = обновляем фрейм из превью
             // Draw the opaque result bitmap over the scanning rectangle
             paint.setAlpha(CURRENT_POINT_OPACITY);
             canvas.drawBitmap(resultBitmap, null, frame, paint);
         } else {
             // В этом случае рисуем скачушие точки = лазерная линия
-            // вычисляем наилучший размер светлого фрейма
+            // Получаем координаты растянутого центрального фрейма
+            // и зачем-то называем его превью
             Rect previewFrame = getFramingRectInPreview();
             // TODO проверять previewFrame на null
             // вычисляем отношение сторон фрейма к сторонам превью
+            // зачем-то считаем отношение сторон половинного фрейма к растянутому
             float scaleX = frame.width() / (float) previewFrame.width();
             float scaleY = frame.height() / (float) previewFrame.height();
 
@@ -164,7 +185,7 @@ public final class ViewfinderView extends View {
                 }
             }
 
-            // Запрос следующего обновления по интервалу анимации, но перерисовывается только линия лазера.
+            // Запрос следующего обновления по интервалу анимации, но перерисовываются только точки.
             // а не вся маска видоискателя.
             // Request another update at the animation interval, but only repaint the laser line,
             // not the entire viewfinder mask.
@@ -174,12 +195,14 @@ public final class ViewfinderView extends View {
                         frame.right + POINT_SIZE,
                         frame.bottom + POINT_SIZE);
         }
-//*/
+//*//---
     }
 
     public void addPossibleResultPoint(ResultPoint point) {
-        /* Работает с лазерными точками, обращаясь к zxing?
-         *
+        /*  Работает с возможно распознанными маркерами куэра, которые потом изображаются в виде лазерных точек,
+         *    обращаясь к zxing?
+         *  Получает координаты маркера и заносит точку в список (стек)
+         *  Если стек полон, то очищает его половину
          */
 
         List<ResultPoint> points = possibleResultPoints;
@@ -194,41 +217,51 @@ public final class ViewfinderView extends View {
     }
 
     public synchronized Rect getFramingRectInPreview() {
-        /* Определяет размеры прямоугольника фрейма в превью
-         * Растягивает фрейм с учетом разрешений экрана и камеры
+        /* Зачем-то ??? возвращает размеры растянутого половинного центрального фрейма,
+         * растянутого по каждой стороне на отношение
+         * разрешения матрицы камеры к разрешению экрана по этой стороне.
+         * Коррекция центрального фрейма?
          */
         // Вычислим, если не делали этого
         if (framingRectInPreview == null) {
             if (camera==null) throw new IllegalStateException("Camera is null!");
+            // получаем координаты половинного прямоугольника в центре
             Rect framingRect = getFramingRect();
             if (framingRect == null) {
                 return null;
             }
-            outStr += "framingRect " + framingRect + "\n";
+            outStr += "framingRect Центр0.5 " + framingRect + "\n";
 
+            // создаем еще один такой же половинный в центре
             Rect rect = new Rect(framingRect);
+            // получаем от камеры все ее параметры и передаем в функцию,
+            // которая сама берет оттуда список разрешений ее превью
+            // и возвращает наиболее близкое к пропорциям экрана.
             Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
 
             outStr += "cameraResolution " + cameraResolution + "\n";
-
+            // получаем разрешение экрана в сравнимом формате
             Point screenResolution = getScreenResolution();
+
             if (cameraResolution == null || screenResolution == null) {
                 // вызвали слишком рано, еще не инициализировались
                 return null;
             }
-            outStr += "screenResolution " + screenResolution+ "\n";
-            outStr += "cameraResolution.x / screenResolution.x" + cameraResolution.x / screenResolution.x + "\n";
-            outStr += "cameraResolution.y / screenResolution.y" + cameraResolution.y / screenResolution.y + "\n";
-
-            // =1 !!!
 
             // Растягиваем фрейм, вычисляем координаты положения фрейма на экране, умножая
             // на отношение разрешений камеры к экрану по каждой координате
+            // Зачем ???
 
-            rect.left = rect.left * cameraResolution.x / screenResolution.x;
-            rect.right = rect.right * cameraResolution.x / screenResolution.x;
-            rect.top = rect.top * cameraResolution.y / screenResolution.y;
-            rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
+            //rect.left = rect.left * cameraResolution.x / screenResolution.x; // Ошибка - всегда целое
+
+            double xCamToScreen = (double)cameraResolution.x / (double)screenResolution.x;
+            double yCamToScreen  = (double)cameraResolution.y / (double)screenResolution.y;
+
+            rect.left = (int)(rect.left * xCamToScreen);
+            rect.top = (int)(rect.top * yCamToScreen);
+            rect.right = (int)(rect.right * xCamToScreen);
+            rect.bottom = (int)(rect.bottom * yCamToScreen);
+
             outStr += "rect " + rect + "\n";
 
             //rect.left = 0;
@@ -237,18 +270,22 @@ public final class ViewfinderView extends View {
             //rect.bottom = 540;
 
             framingRectInPreview = rect;
-            outStr += "framingRectInPreview.l.t.r.b "
-                    + rect.left + "*" + rect.top + "-" + rect.right + "*" + rect.bottom + "*" + "\n";
+            outStr += "framingRectInPreview " + rect + "\n";
 
         }
         return framingRectInPreview;
     }
 
     public synchronized Rect getFramingRect() {
-        /* Вычисляет предпочтительные координаты внутреннего прямоугольника обрамления=фрейма
-         * на основе разрешения экрана и констант минимальных и максимальных размеров фрейма.
-         * Чтобы поле для куэра не было слишком большим или маленьким.
-         * Вычисляет расположение фрейма на экране при данном разрешении экрана.
+        /* Вычисляет и возвращает координаты половинного центрального фрейма.
+         * Определяет предпочтительные координаты внутреннего прямоугольника обрамления=фрейма.
+         * Размеры - половина от размера экрана по каждой стороне.
+         * Проверяет, чтобы фрейм не оказался слишком большим или маленьким
+         * по константам минимальных и максимальных размеров сторон фрейма.
+         * Если не вписывается в пределы, то используется предел в качестве размера.
+         * Вычисляет смещение фрейма после определения размеров,
+         * чтобы он оказался в центре экрана при данном разрешении экрана.
+         * Возвращает абсолютные координаты.
          */
 
         if (framingRect == null) {
@@ -257,19 +294,20 @@ public final class ViewfinderView extends View {
                 // вызвали слишком рано, еще не инициализировались
                 return null;
             }
-
+            // подсчитываем и проверяем размеры фрейма, чтобы он был в два раза меньше экрана по каждому измерению,
+            // но не слишком большим или маленьким
             int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
             int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
             outStr += "Desired.w.h " + width + "*" + height + "\n";
 
-            // Смещение фрейма
+            // Смещение фрейма, чтобы он находился точно в центре экрана
             int leftOffset = (screenResolution.x - width) / 2;
             int topOffset = (screenResolution.y - height) / 2;
             outStr += "Offset.left.top " + leftOffset  + "*" +  topOffset + "\n";
 
             framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
 
-            //--- когда не используем рамку
+            //--- можем сделать фрейм вовесь экран
             //framingRect = new Rect(0, 0, screenResolution.x, screenResolution.y);
 
             Log.d(TAG, "Рассчитанный размер прямоугольника рамки: " + framingRect);
@@ -280,9 +318,10 @@ public final class ViewfinderView extends View {
 
 
     private static int findDesiredDimensionInRange(int resolution, int hardMin, int hardMax) {
-        /* Вычисляет предпочтительные размеры фрейма для данного разрешения экрана
+        /* Возвращает предпочтительные размеры стороны фрейма для данного размера стороны экрана
          * с учетом минимального и максимального допустимого размера.
-         * Хотим фрейм приблизительно в 50% экрана.
+         * Хотим стороны фрейма приблизительно в 50% стороны экрана.
+         * Если меньше или больше - используются пределы.
          */
 
         int dim = resolution / 2; // Target 50% of each dimension
@@ -297,7 +336,7 @@ public final class ViewfinderView extends View {
 
 
     private Point getScreenResolution() {
-        /* Определяет разрешение экрана и возвращает его в виде, где ширина всегда больше высоты
+        /* Определяет аппаратное разрешение экрана и возвращает его в виде, где ширина всегда больше высоты
          *
          */
         WindowManager manager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
@@ -331,24 +370,22 @@ public final class ViewfinderView extends View {
 
     private Point findBestPreviewSizeValue(Camera.Parameters parameters) {
 
-        /* Определяет наилучшие размеры превью, получаемого от камеры, запрашивая их у камеры
-         * и выбирая подходящее.
+        /* Определяет и возвращает наилучшие размеры превью, получаемого от камеры,
+         * запрашивая их у камеры и выбирая подходящее из списка.
          *
          * Переработанная функция из:
          * zxing/android-core/src/main/java/com/google/zxing/client/android/camera/CameraConfigurationUtils.java
-         *В оригинале вместо float везде используется double
+         * В оригинале вместо float везде используется double
          *
-         * При невозможности определения используем значения по-умолчанию.
-         * Запрашиваем у камеры список поддерживаемых разрешений превью. Если камера не дает список,
-         * запрашиваем у нее значения превью по-умолчанию и работаем с ними.
-         *
-         *
-         *
+         * При невозможности определения использует значения по-умолчанию.
+         * Берет из параметров камеры список поддерживаемых разрешений превью и
+         * выбирает одно с пропорциями, наиболее близкими к пропорциям экрана.
          *
          */
 
         List<Camera.Size> rawSupportedSizes = parameters.getSupportedPreviewSizes();
         if (rawSupportedSizes == null) {
+            // При невозможности определения использует значения по-умолчанию.
             Log.w(TAG, "Устройство не возвращает размеры поддерживаемых превью; используем умолчания");
             outStr += "Устройство не возвращает размеры поддерживаемых превью; используем умолчания" + "\n";
 
@@ -357,7 +394,7 @@ public final class ViewfinderView extends View {
             return new Point(defaultSize.width, defaultSize.height);
         }
 
-        // Сортитуем разрешения по убыванию размера
+        // Сортитуем разрешения в списке по убыванию количества пикселов
         List<Camera.Size> supportedPreviewSizes = new ArrayList<Camera.Size>(rawSupportedSizes);
         Collections.sort(supportedPreviewSizes, new Comparator<Camera.Size>() {
             @Override
@@ -373,7 +410,7 @@ public final class ViewfinderView extends View {
                 return 0;
             }
         });
-        // строим список разрешений превью в виде строки, только чтобы показать в логе
+        // преобразуем список разрешений превью в строку, только чтобы показать их в логе
         if (Log.isLoggable(TAG, Log.INFO)) {
             StringBuilder previewSizesString = new StringBuilder();
             for (Camera.Size supportedPreviewSize : supportedPreviewSizes) {
@@ -385,16 +422,19 @@ public final class ViewfinderView extends View {
 
         }
         // Далее, выбираем наиболее подходящее из списка.
-        // Сначала определяем физическое разрешение экрана и соотношение его сторон
+
+        // Здесь будем сохранять разрешение с пропорциями, наименее отличающимися от разрешения экрана
         Point bestSize = null;
+        // Определяем физическое разрешение экрана и соотношение его сторон
         Point screenResolution = getScreenResolution();
         float screenAspectRatio = (float) screenResolution.x / (float) screenResolution.y;
         outStr += "screenAspectRatio " + screenAspectRatio + "\n";
 
         float diff = Float.POSITIVE_INFINITY;
-        // Перебираем разрешения превью из списка
+        // Перебираем разрешения превью по списку
         for (Camera.Size supportedPreviewSize : supportedPreviewSizes) {
-            // проверяем, на выходит ли разрешение превью из списка за заданные пределы
+            // проверяем, на выходит ли количество пикселов в данном разрешении превью из списка
+            //   за заданные пределы. Если выходит - берем следующее.
             int realWidth = supportedPreviewSize.width;
             int realHeight = supportedPreviewSize.height;
 
@@ -403,7 +443,7 @@ public final class ViewfinderView extends View {
                 continue;
             }
 
-            // проверяем ориентацию превью и исправляем на горизонтальную
+            // Проверяем ориентацию превью и исправляем на горизонтальную
             boolean isCandidatePortrait = realWidth < realHeight;
             int maybeFlippedWidth = isCandidatePortrait ? realHeight : realWidth;
             int maybeFlippedHeight = isCandidatePortrait ? realWidth : realHeight;
@@ -415,20 +455,27 @@ public final class ViewfinderView extends View {
                 outStr = "Размер превью, наиболее подходящий под размер экрана: " + exactPoint + "\n";
                 return exactPoint;
             }
-            // сверяем соотношения сторон у экрана и превью
+            // иначе, сверяем соотношения сторон у экрана и превью
             float aspectRatio = (float) maybeFlippedWidth / (float) maybeFlippedHeight;
             float newDiff = Math.abs(aspectRatio - screenAspectRatio);
-            // если разницы нет - то нашли
+            // сохраняем данное разрешение превью как лучшее, если разница между
+            // его пропорциями и экрана меньше, чем у предыдущего из списка.
+            // начальное diff = 1. Любая разность пропорций newDiff по модулю будет < 1,
+            // если только одна из них не 0.
+            outStr += "newDiff " + newDiff + "\n";
 
             if (newDiff < diff) {
                 bestSize = new Point(realWidth, realHeight);
                 diff = newDiff;
-                outStr += "Newdiff<diff: " + bestSize + "\n";
+                outStr += "bestSize " + bestSize + "\n";
 
             }
         }
 
-        // раз не нашли равного, используем значение по-умолчанию от камеры
+        // интересно, что будет использовано разрешение с лучшими пропорциями,
+        // которое может иметь меньшее разрешение, что позволит лучше вписать превью в экран.
+        // На разрешение сканирование не влияет.
+        // Раз не нашли никакого или 0, используем значение по-умолчанию из параметров камеры
         if (bestSize == null) {
             Camera.Size defaultSize = parameters.getPreviewSize();
             bestSize = new Point(defaultSize.width, defaultSize.height);
