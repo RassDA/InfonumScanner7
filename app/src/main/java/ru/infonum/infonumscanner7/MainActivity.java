@@ -123,6 +123,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        // первый раз создана поверхность для рисования
         try {
             camera.setPreviewDisplay(holder);
             camera.setPreviewCallback(this);
@@ -134,15 +135,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         // Вычисляем соотношение сторон этого превью
         double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
-        outStr += "camPreviewSize.w.h-a " + camPreviewSize.width + " "+ camPreviewSize.height + "-" + aspectCamPreview +"\n";
-
-        LayoutParams layoutParams = previewSurface.getLayoutParams();
+        outStr += "camPreviewSize.w.h-a " + camPreviewSize.width + " "+ camPreviewSize.height + "\naspect " + aspectCamPreview +"\n";
 
         // камеру переводим в горизонт
         Camera.Parameters cameraParameters = camera.getParameters();
         cameraParameters.set("orientation", "landscape"); //def="landscape"
         camera.setParameters(cameraParameters);
 
+        LayoutParams layoutParams = previewSurface.getLayoutParams();
         // Где-то ошибка в подсчетах каких-то размеров. Сканирует только при видимом размере куэра
         // примерно в 2..3 раза меньше короткой стороны прямоугольника видоискателя.
         // Помогает умножение на 2 размеров lp. Но, при каждом след. возобновлении сканирования,
