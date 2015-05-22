@@ -1,7 +1,6 @@
 package ru.infonum.infonumscanner7;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
@@ -46,26 +45,24 @@ import static ru.infonum.infonumscanner7.ViewfinderView.outStr;
 //
 public class MainActivity extends Activity implements SurfaceHolder.Callback, PreviewCallback, AutoFocusCallback {
     private Camera camera;
-    private SurfaceView preview;
+    private SurfaceView previewSurface;
     private ViewfinderView vfv;
     private Result rawResult;
     private String TAG = MainActivity.class.getSimpleName();
     private long currKey;
     private final int AUTOFOCUS_DELAY = 2000; // 2000 - период принудительного перезапуска автофокуса
-    public Context context = getBaseContext();
-    //public static String outStr = "";
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // инициализирует поверхность для рисования
 
+        // экран переводим в горизонт, полный экран, без заголовка
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        FrameLayout fl = new FrameLayout(this);
+        FrameLayout frameLayout = new FrameLayout(this);
         // Тип верстки с одним эл. в строке.
         // Если внутри несколько элементов, то след. будет поверх предыд.
         // Обычно это пустое пространство на экране, которое можно заполнить
@@ -75,14 +72,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Последующие дочерние объекты View будут просто рисоваться поверх предыдущих представлений,
         //   частично или полностью затеняя их, если находящийся сверху объект непрозрачен
 
-        preview = new SurfaceView(this);
+        previewSurface = new SurfaceView(this);
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
-        SurfaceHolder surfaceHolder = preview.getHolder();
+        SurfaceHolder surfaceHolder = previewSurface.getHolder();
         surfaceHolder.addCallback(this);
         // хотим получать соответствующие обратные вызовы.
         // будем отрисовывать картинку с камеры и...
-        fl.addView(preview, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
         // создем экземпляр видоискателя = превью камеры
         vfv = new ViewfinderView(this, null);
@@ -92,9 +89,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Требуется размер куэр 1/4 ширины экрана.
 
         //---здесь убирать эффекты видоискателя
-        fl.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-        setContentView(fl);
+        setContentView(frameLayout);
 
     }
 
@@ -133,29 +130,33 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
             e.printStackTrace();
         }
 
+        // Взяли размер превью ранее установленный, хотя их там список
         Size camPreviewSize = camera.getParameters().getPreviewSize();
-        float aspect = (float) camPreviewSize.width / camPreviewSize.height; //def. соотношение сторон камеры
-        //aspect = 1 / aspect;
-        outStr += "camPreviewSize.w.h " + camPreviewSize.width + camPreviewSize.height + "\n";
-        outStr += "camAspect " + aspect + "\n";
+        // Вычисляем соотношение сторон этого превью
+        double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
+        outStr += "camPreviewSize.w.h-a " + camPreviewSize.width + " "+ camPreviewSize.height + "-" + aspectCamPreview +"\n";
 
-        LayoutParams layoutParams = preview.getLayoutParams();
+        // камеру переводим в горизонт
         Camera.Parameters cameraParameters = camera.getParameters();
         cameraParameters.set("orientation", "landscape"); //def="landscape"
-        //parameters.set("orientation", "portrait");
         camera.setParameters(cameraParameters);
 
+        LayoutParams layoutParams = previewSurface.getLayoutParams();
         // Где-то ошибка в подсчетах каких-то размеров. Сканирует только при видимом размере куэра
         // примерно в 2..3 раза меньше короткой стороны прямоугольника видоискателя.
         // Помогает умножение на 2 размеров lp. Но, при каждом след. возобновлении сканирования,
         // размер изображения увеличивается вдвое, пока приложение не вылетает. Но сканирует - ОК!!!
-        layoutParams.width = preview.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
+        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
         // Берем за основу ширину экрана
         // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // рисовать его будем с соотношением строн матрицы камеры
-        layoutParams.height = (int) (layoutParams.width / aspect); // можно *2
-        preview.setLayoutParams(layoutParams); // устанавливаем размеры области для рисования
+        layoutParams.height = (int) (layoutParams.width / aspectCamPreview); // можно *2
 
+        // переопределяем размеры области поверхности для рисования
+        previewSurface.setLayoutParams(layoutParams); // устанавливаем размеры области для рисования
+
+        // запускает захват кадров и рисование превью на экране.
+        // В действительности, превью стартует после setPreviewDisplay(SurfaceHolder).
         camera.startPreview();
 
         try {
@@ -171,6 +172,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
     @Override
     public void onPreviewFrame(final byte[] bytes, final Camera camera) {
+        // вызывается при каждом кадре с камеры, чтобы доставлять копии превью на экран,
+        // готовыми к показу. Кадр превью в уст. формате возвращает в byte[].
+        // Будет вызвана, когда кадр станет доступен, если вызывалось через колбэк.
+        //
+        // Callback interface used to deliver copies of preview frames as they are displayed.
+        // onPreviewFrame - Called as preview frames are displayed
+        // Parameters:
+        //   data 	    the contents of the preview frame in the format defined by ImageFormat,
+        //              which can be queried with getPreviewFormat().
+        //              If setPreviewFormat(int) is never called,
+        //              the default will be the YCbCr_420_SP (NV21) format.
+        //   camera 	the Camera service object. б
+
         new Recognizer(currKey, bytes).start();
     }
 
@@ -210,12 +224,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
                 Rect rect = vfv.getFramingRectInPreview();
-                outStr += "vfv.getFramingRectInPreview " + rect + "\n";
+                //outStr += "vfv.getFramingRectInPreview " + rect + "\n";
 
                 // ищет маркеры только в превью камеры
+                //LuminanceSource source = new PlanarYUVLuminanceSource(
+                //bytes, previewSize.width, previewSize.height, rect.left, rect.top,
+                //        rect.width(), rect.height(), false);
+
                 LuminanceSource source = new PlanarYUVLuminanceSource(
-                        bytes, previewSize.width, previewSize.height, rect.left, rect.top,
-                        rect.width(), rect.height(), false);
+                bytes, 1280, 0, rect.left, rect.top,
+                rect.width(), rect.height(), false);
                 //def previewSize.width, false
                 // Если последний пар true, то точки появляются с правильной стороны, не зеркально,
                 // но перестает распознаваться код.
