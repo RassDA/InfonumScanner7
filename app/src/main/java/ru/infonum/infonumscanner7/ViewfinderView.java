@@ -67,6 +67,7 @@ public final class ViewfinderView extends View {
     private Bitmap resultBitmap;
     private final int maskColor;
     private final int resultColor;
+    private final int resultColor2;
     private final int resultPointColor;
     private List<ResultPoint> possibleResultPoints;
     private List<ResultPoint> lastPossibleResultPoints;
@@ -87,6 +88,7 @@ public final class ViewfinderView extends View {
         maskColor = resources.getColor(R.color.viewfinder_mask);
         resultColor = resources.getColor(R.color.result_view);
         resultPointColor = resources.getColor(R.color.possible_result_points);
+        resultColor2 = resources.getColor(R.color.result_points);
         possibleResultPoints = new ArrayList<ResultPoint>(5);
         lastPossibleResultPoints = null;
     }
@@ -104,7 +106,8 @@ public final class ViewfinderView extends View {
          *  - поверх - затемняющая рамка, оставляющая светлый прямоугольник в центре
          *  - поверх - лазерные точки в местах распознания маркеров куэра
          *
-         *
+         *  Видимо, координаты точек передаются в системе матрицы камеры.
+         *  Чтобы они правильно отрисовывались, нужно масштабировать.
          *
          *
          *
@@ -141,33 +144,50 @@ public final class ViewfinderView extends View {
             paint.setAlpha(CURRENT_POINT_OPACITY);
             canvas.drawBitmap(resultBitmap, null, frame, paint);
         } else {
-            // В этом случае рисуем скачушие точки = лазерная линия
+            // В этом случае рисуем скачущие точки = лазерная линия
             // Получаем координаты растянутого центрального фрейма
             // и зачем-то называем его превью
             Rect previewFrame = getFramingRectInPreview();
             // TODO проверять previewFrame на null
+
             // вычисляем отношение сторон фрейма к сторонам превью
             // зачем-то считаем отношение сторон половинного фрейма к растянутому
+            // получаем снова коэфф. растягивания экрана к матрице камеры
+            // т.е. scaleX = (screen.x / cam.x) // прикол. это следует из getFramingRectInPreview()
+
             float scaleX = frame.width() / (float) previewFrame.width();
             float scaleY = frame.height() / (float) previewFrame.height();
 
-
             List<ResultPoint> currentPossible = possibleResultPoints;
             List<ResultPoint> currentLast = lastPossibleResultPoints;
+
             int frameLeft = frame.left;
             int frameTop = frame.top;
+
             if (currentPossible.isEmpty()) {
-            lastPossibleResultPoints = null;
+                lastPossibleResultPoints = null;
             } else {
                 possibleResultPoints = new ArrayList<ResultPoint>(5);
                 lastPossibleResultPoints = currentPossible;
                 paint.setAlpha(CURRENT_POINT_OPACITY);
-                paint.setColor(resultPointColor);
+                paint.setColor(resultColor2);
                 synchronized (currentPossible) {
                     for (ResultPoint point : currentPossible) {
-                        canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
-                                frameTop + (int) (point.getY() * scaleY),
-                                POINT_SIZE, paint);
+                        //  только для первого раза
+                        // отрисовываются точки, но в неправильных местах из-за ошибок масштабирования
+                        // левая граница фрейма + координата точки с поправкой
+                        // на разницу сторон матрицы и экрана
+
+                        //canvas.drawCircle(frameLeft - (int) (point.getX() * scaleX),
+                        //frameTop - (int) (point.getY() * scaleY),
+                        //POINT_SIZE, paint);
+
+                        canvas.drawCircle(
+                                (960 - frameLeft + (int) (point.getX())),
+                                (540 - frameTop + (int) (point.getY())),
+                                POINT_SIZE,
+                                paint
+                        );
                     }
                 }
             }
@@ -176,17 +196,34 @@ public final class ViewfinderView extends View {
                 paint.setAlpha(CURRENT_POINT_OPACITY / 2);
                 paint.setColor(resultPointColor);
                 synchronized (currentLast) {
+                    // отрисовываются точки, но в неправильных местах из-за ошибок масштабирования
+                    // левая граница фрейма + координата точки с поправкой
+                    // на разницу сторон матрицы и экрана
+
+                    // координаты точек в системе координат экрана. (0,0)-левый верхний ланшафт.
+                    // Радиус точки в два раза меньше?
                     float radius = POINT_SIZE / 2.0f;
                     for (ResultPoint point : currentLast) {
-                        canvas.drawCircle(frameLeft + (int) (point.getX() * scaleX),
-                              frameTop + (int) (point.getY() * scaleY),
-                              radius, paint);
+
+                        outStr += "Point.x.y " + point.getX() + " " + point.getY() + "\n";
+
+                        //canvas.drawCircle((int) (frameLeft + point.getX() * scaleX),
+                        //      (int) (frameTop + point.getY() * scaleY),
+                        //      radius, paint);
+
+                        canvas.drawCircle(
+                                (960 - frameLeft + (int) (point.getX())) / 2,
+                                (540 - frameTop + (int) (point.getY())) / 2,
+                                POINT_SIZE,
+                                paint
+                        );
+
                     }
                 }
             }
 
             // Запрос следующего обновления по интервалу анимации, но перерисовываются только точки.
-            // а не вся маска видоискателя.
+            // а не вся маска видоискателя. Лазерная линия не используется.
             // Request another update at the animation interval, but only repaint the laser line,
             // not the entire viewfinder mask.
             postInvalidateDelayed(ANIMATION_DELAY,
@@ -201,6 +238,8 @@ public final class ViewfinderView extends View {
     public void addPossibleResultPoint(ResultPoint point) {
         /*  Работает с возможно распознанными маркерами куэра, которые потом изображаются в виде лазерных точек,
          *    обращаясь к zxing?
+         *
+         *    Используется в Main
          *  Получает координаты маркера и заносит точку в список (стек)
          *  Если стек полон, то очищает его половину
          */

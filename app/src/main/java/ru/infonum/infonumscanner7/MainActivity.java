@@ -205,27 +205,40 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         @Override
         public void run() {
             try {
+                // на каждом кадре с камеры извлекаем параметры превью - надо?
                 Size previewSize = camera.getParameters().getPreviewSize(); // от камеры
+
+                // на каждом кадре с камеры пересчитываем фрейм - надо?
                 Rect rect = vfv.getFramingRectInPreview();
+                outStr += "vfv.getFramingRectInPreview " + rect + "\n";
+
+                // ищет маркеры только в превью камеры
                 LuminanceSource source = new PlanarYUVLuminanceSource(
                         bytes, previewSize.width, previewSize.height, rect.left, rect.top,
                         rect.width(), rect.height(), false);
-                //def previewSize.width,
+                //def previewSize.width, false
+                // Если последний пар true, то точки появляются с правильной стороны, не зеркально,
+                // но перестает распознаваться код.
+                // Вывод - нужно зеркалить точки при рисовании геометрически.
 
+                // параметры декодирования
                 Map<DecodeHintType,Object> hints = new HashMap<DecodeHintType, Object>();
                 Vector<BarcodeFormat> decodeFormats = new Vector<BarcodeFormat>(1);
+                // декодировать только QR
                 decodeFormats.add(BarcodeFormat.QR_CODE);
                 hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
                 hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, new ResultPointCallback() {
                     @Override
                     public void foundPossibleResultPoint(ResultPoint resultPoint) {
-                        outStr += "resultPoint" + resultPoint + "\n";
+                        // добавляем найденную точку в список возможный маркеров
                         vfv.addPossibleResultPoint(resultPoint);
                     }
                 });
                 MultiFormatReader mfr = new MultiFormatReader();
                 mfr.setHints(hints);
+                // декодированный битмап из массива с матрицы
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                // расшифрованная строка из куэра
                 rawResult = mfr.decodeWithState(bitmap);
                 if (rawResult!=null) {
                     Log.e(TAG, rawResult.getText() + " key=" + key + " currKey=" + currKey);
