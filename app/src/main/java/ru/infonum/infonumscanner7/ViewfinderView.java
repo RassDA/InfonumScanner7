@@ -298,10 +298,11 @@ public final class ViewfinderView extends View {
 //1280:960=
             double yCamToScreen  = (double)cameraResolution.y / (double)screenResolution.y;
 //720:540=
-            rect.left = (int)(rect.left * xCamToScreen);
-            rect.top = (int)(rect.top * yCamToScreen);
-            rect.right = (int)(rect.right * xCamToScreen);
-            rect.bottom = (int)(rect.bottom * yCamToScreen);
+// 240,135-720,405
+            //rect.left = (int)(rect.left * xCamToScreen);
+            //rect.top = (int)(rect.top * yCamToScreen);
+            //rect.right = (int)(rect.right * xCamToScreen);
+            //rect.bottom = (int)(rect.bottom * yCamToScreen);
 //320.180-960.540
             outStr += "rect " + rect + "\n";
 
