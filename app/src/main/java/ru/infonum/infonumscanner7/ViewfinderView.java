@@ -266,22 +266,23 @@ public final class ViewfinderView extends View {
             if (camera==null) throw new IllegalStateException("Camera is null!");
             // получаем координаты половинного прямоугольника в центре
             Rect framingRect = getFramingRect();
+
             if (framingRect == null) {
                 return null;
             }
             outStr += "framingRect Центр0.5 " + framingRect + "\n";
-
+//240,135-720,405
             // создаем еще один такой же половинный в центре
             Rect rect = new Rect(framingRect);
             // получаем от камеры все ее параметры и передаем в функцию,
             // которая сама берет оттуда список разрешений ее превью
             // и возвращает наиболее близкое к пропорциям экрана.
             Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
-
             outStr += "cameraResolution " + cameraResolution + "\n";
+//1280,720
             // получаем разрешение экрана в сравнимом формате
             Point screenResolution = getScreenResolution();
-
+//960,540
             if (cameraResolution == null || screenResolution == null) {
                 // вызвали слишком рано, еще не инициализировались
                 return null;
@@ -294,13 +295,14 @@ public final class ViewfinderView extends View {
             //rect.left = rect.left * cameraResolution.x / screenResolution.x; // Ошибка - всегда целое
 
             double xCamToScreen = (double)cameraResolution.x / (double)screenResolution.x;
+//1280:960=
             double yCamToScreen  = (double)cameraResolution.y / (double)screenResolution.y;
-
+//720:540=
             rect.left = (int)(rect.left * xCamToScreen);
             rect.top = (int)(rect.top * yCamToScreen);
             rect.right = (int)(rect.right * xCamToScreen);
             rect.bottom = (int)(rect.bottom * yCamToScreen);
-
+//320.180-960.540
             outStr += "rect " + rect + "\n";
 
             //rect.left = 0;
@@ -410,7 +412,7 @@ public final class ViewfinderView extends View {
     private Point findBestPreviewSizeValue(Camera.Parameters parameters) {
 
         /* Определяет и возвращает наилучшие размеры превью, получаемого от камеры,
-         * запрашивая их у камеры и выбирая подходящее из списка.
+         * выбирает подходящий из списка из параметров.
          *
          * Переработанная функция из:
          * zxing/android-core/src/main/java/com/google/zxing/client/android/camera/CameraConfigurationUtils.java

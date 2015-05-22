@@ -131,11 +131,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
             e.printStackTrace();
         }
 
-        // Взяли размер превью ранее установленный, хотя их там список
-        Size camPreviewSize = camera.getParameters().getPreviewSize();
-        // Вычисляем соотношение сторон этого превью
-        double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
-        outStr += "camPreviewSize.w.h " + camPreviewSize.width + " "+ camPreviewSize.height + "\naspect " + aspectCamPreview +"\n";
 
         // камеру переводим в горизонт
         Camera.Parameters cameraParameters = camera.getParameters();
@@ -150,10 +145,18 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Обязательно устанавливать. Ширина и высота не инициализированы по-ум. :(
         layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
 //960,540
+
+        // Взяли размер превью установленный по-умолчанию, хотя их там список
+        // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
+        Size camPreviewSize = camera.getParameters().getPreviewSize();
+        double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
+        outStr += "camPreviewSize.w.h " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
+        outStr += "aspect " + aspectCamPreview +"\n";
+//640.480 = 1.3
+
         // Переопределяем высоту поверхности для рисования.
         // Берем за основу ширину экрана.
         // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
-        // рисовать его будем с соотношением строн матрицы камеры.
         // Лейаут получается большей высоты чем экран ! Но нас это не беспокоит почему-то.
         layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
         outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
@@ -228,8 +231,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 // на каждом кадре с камеры извлекаем параметры превью - надо?
                 Size previewSize = camera.getParameters().getPreviewSize();
                 // видимо, пересчитанные и сохраненные параметры при создании поверхности
-                outStr += "camera.previewSize " + previewSize.height + " " + previewSize.width + "\n";
-
+                outStr += "camera.previewSize " + previewSize.width + " " + previewSize.height + "\n";
+//640.480
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
                 Rect rect = vfv.getFramingRectInPreview();
                 //outStr += "vfv.getFramingRectInPreview " + rect + "\n";
