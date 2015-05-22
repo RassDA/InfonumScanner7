@@ -62,6 +62,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
+        previewSurface = new SurfaceView(this);
+        // Предоставляет отдельную область для рисования,
+        //   действия с которой должны быть вынесены в отдельный поток приложения.
+        SurfaceHolder surfaceHolder = previewSurface.getHolder();
+        surfaceHolder.addCallback(this);
+        // хотим получать соответствующие обратные вызовы.
+        // будем отрисовывать картинку с камеры и...
+
         FrameLayout frameLayout = new FrameLayout(this);
         // Тип верстки с одним эл. в строке.
         // Если внутри несколько элементов, то след. будет поверх предыд.
@@ -71,14 +79,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // В разметке FrameLayout нельзя определить различное местоположение для дочернего объекта View.
         // Последующие дочерние объекты View будут просто рисоваться поверх предыдущих представлений,
         //   частично или полностью затеняя их, если находящийся сверху объект непрозрачен
-
-        previewSurface = new SurfaceView(this);
-        // Предоставляет отдельную область для рисования,
-        //   действия с которой должны быть вынесены в отдельный поток приложения.
-        SurfaceHolder surfaceHolder = previewSurface.getHolder();
-        surfaceHolder.addCallback(this);
-        // хотим получать соответствующие обратные вызовы.
-        // будем отрисовывать картинку с камеры и...
         frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
         // создем экземпляр видоискателя = превью камеры
