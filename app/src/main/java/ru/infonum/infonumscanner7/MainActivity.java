@@ -144,16 +144,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
         // откуда параметры поверхности? От экрана?
         LayoutParams layoutParams = previewSurface.getLayoutParams();
-        outStr += "previewSurface.w.h " + previewSurface.getWidth() + previewSurface.getHeight()+ "\n";
+        outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
 
         // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копирум ширину?
-        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
+        //layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
 
         // Берем за основу ширину экрана
         // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // рисовать его будем с соотношением строн матрицы камеры
         layoutParams.height = (int) (layoutParams.width / aspectCamPreview); // можно *2
-        outStr += "layoutParams.w.h " + layoutParams.width + layoutParams.height + "\n";
+        outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
 
         // переопределяем высоту поверхности для рисования
         previewSurface.setLayoutParams(layoutParams); // устанавливаем размеры области для рисования
