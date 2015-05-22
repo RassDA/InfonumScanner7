@@ -147,16 +147,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
 
         // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копирум ширину?
-        //layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
-
-        // Берем за основу ширину экрана
+        // Обязательно устанавливать. Ширина и высота не инициализированы по-ум. :(
+        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
+//960,540
+        // Переопределяем высоту поверхности для рисования.
+        // Берем за основу ширину экрана.
         // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
-        // рисовать его будем с соотношением строн матрицы камеры
-        layoutParams.height = (int) (layoutParams.width / aspectCamPreview); // можно *2
+        // рисовать его будем с соотношением строн матрицы камеры.
+        // Лейаут получается большей высоты чем экран ! Но нас это не беспокоит почему-то.
+        layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
         outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
-
-        // переопределяем высоту поверхности для рисования
-        previewSurface.setLayoutParams(layoutParams); // устанавливаем размеры области для рисования
+//960,720
+        previewSurface.setLayoutParams(layoutParams);
+        // как-то это сохранится в параметрах превью камеры
 
         // запускает захват кадров и рисование превью на экране.
         // В действительности, превью стартует после setPreviewDisplay(SurfaceHolder).
@@ -176,7 +179,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     @Override
     public void onPreviewFrame(final byte[] bytes, final Camera camera) {
         // вызывается при каждом кадре с камеры, чтобы доставлять копии превью на экран,
-        // готовыми к показу. Кадр превью в уст. формате возвращает в byte[].
+        // готовыми к показу. Кадр превью в уст. формате возвращается в byte[].
         // Будет вызвана, когда кадр станет доступен, если вызывалось через колбэк.
         //
         // Callback interface used to deliver copies of preview frames as they are displayed.
@@ -223,7 +226,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         public void run() {
             try {
                 // на каждом кадре с камеры извлекаем параметры превью - надо?
-                Size previewSize = camera.getParameters().getPreviewSize(); // от камеры
+                Size previewSize = camera.getParameters().getPreviewSize();
+                // видимо, пересчитанные и сохраненные параметры при создании поверхности
+                outStr += "camera.previewSize " + previewSize + "\n";
 
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
                 Rect rect = vfv.getFramingRectInPreview();
