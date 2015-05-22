@@ -62,9 +62,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        previewSurface = new SurfaceView(this);
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
+        previewSurface = new SurfaceView(this);
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
         surfaceHolder.addCallback(this);
         // хотим получать соответствующие обратные вызовы.
@@ -142,12 +142,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         cameraParameters.set("orientation", "landscape"); //def="landscape"
         camera.setParameters(cameraParameters);
 
+        // откуда параметры поверхности? От экрана?
         LayoutParams layoutParams = previewSurface.getLayoutParams();
-        // Где-то ошибка в подсчетах каких-то размеров. Сканирует только при видимом размере куэра
-        // примерно в 2..3 раза меньше короткой стороны прямоугольника видоискателя.
-        // Помогает умножение на 2 размеров lp. Но, при каждом след. возобновлении сканирования,
-        // размер изображения увеличивается вдвое, пока приложение не вылетает. Но сканирует - ОК!!!
-        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
+
+        // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копирум ширину?
+        //layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
+
         // Берем за основу ширину экрана
         // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // рисовать его будем с соотношением строн матрицы камеры
