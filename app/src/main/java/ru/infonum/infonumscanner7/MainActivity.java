@@ -135,7 +135,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         // Вычисляем соотношение сторон этого превью
         double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
-        outStr += "camPreviewSize.w.h-a " + camPreviewSize.width + " "+ camPreviewSize.height + "\naspect " + aspectCamPreview +"\n";
+        outStr += "camPreviewSize.w.h " + camPreviewSize.width + " "+ camPreviewSize.height + "\naspect " + aspectCamPreview +"\n";
 
         // камеру переводим в горизонт
         Camera.Parameters cameraParameters = camera.getParameters();
@@ -228,7 +228,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 // на каждом кадре с камеры извлекаем параметры превью - надо?
                 Size previewSize = camera.getParameters().getPreviewSize();
                 // видимо, пересчитанные и сохраненные параметры при создании поверхности
-                outStr += "camera.previewSize " + previewSize + "\n";
+                outStr += "camera.previewSize " + previewSize.height + " " + previewSize.width + "\n";
 
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
                 Rect rect = vfv.getFramingRectInPreview();
