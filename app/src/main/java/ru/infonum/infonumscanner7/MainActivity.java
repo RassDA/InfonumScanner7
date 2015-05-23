@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -71,7 +72,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // будем отрисовывать картинку с камеры и...
 
         //--FrameLayout frameLayout = new FrameLayout(this);
-        //---FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
+        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
         // Тип верстки с одним эл. в строке.
         // Если внутри несколько элементов, то след. будет поверх предыд.
@@ -93,7 +94,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Требуется размер куэр 1/4 ширины экрана.
 
         //---здесь убирать эффекты видоискателя
-        //--frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         //setContentView(frameLayout);
 

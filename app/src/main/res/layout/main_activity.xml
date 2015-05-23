@@ -10,7 +10,4 @@
         android:id="@+id/surfaceView"
         android:layout_gravity="left|top" />
 
-    <ru.infonum.infonumscanner7.ViewfinderView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 </FrameLayout>
