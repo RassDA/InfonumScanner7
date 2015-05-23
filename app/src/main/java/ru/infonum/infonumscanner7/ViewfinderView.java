@@ -140,7 +140,7 @@ public final class ViewfinderView extends View {
         //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
         //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
 
-        //paint.setAlpha(0xFFFFFFFF);
+        paint.setAlpha(0xFFFFFFFF);
         paint.setStyle(Paint.Style.STROKE);
         canvas.drawCircle(
                 width / 2,
