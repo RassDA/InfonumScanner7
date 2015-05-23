@@ -87,7 +87,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
         //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
         // создем экземпляр видоискателя = превью камеры
-        //--vfv = new ViewfinderView(this, null);
+        vfv = new ViewfinderView(this, null);
 
         // ...и видоискатель поверх
         // если убрать - не показывает видоискатель и точки, но сканирует не хуже.
@@ -96,7 +96,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         //---здесь убирать эффекты видоискателя
         frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-        //setContentView(frameLayout);
+        setContentView(frameLayout);
 
     }
 
