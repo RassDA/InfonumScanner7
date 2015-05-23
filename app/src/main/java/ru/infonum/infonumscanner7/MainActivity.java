@@ -2,7 +2,6 @@ package ru.infonum.infonumscanner7;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
@@ -11,9 +10,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -58,20 +54,25 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // инициализирует поверхность для рисования
 
         // экран переводим в горизонт, полный экран, без заголовка
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //--setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        //--getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //--requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
-        previewSurface = new SurfaceView(this);
+        setContentView(R.layout.main_activity);
+        previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
+
+        //--previewSurface = new SurfaceView(this);
         //Создание класса, унаследованного от SurfaceView и реализующего интерфейс SurfaceHolder.Callback
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
         surfaceHolder.addCallback(this);
         // хотим получать соответствующие обратные вызовы.
         // будем отрисовывать картинку с камеры и...
 
-        FrameLayout frameLayout = new FrameLayout(this);
+        //--FrameLayout frameLayout = new FrameLayout(this);
+        //---FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
+
         // Тип верстки с одним эл. в строке.
         // Если внутри несколько элементов, то след. будет поверх предыд.
         // Обычно это пустое пространство на экране, которое можно заполнить
@@ -80,19 +81,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // В разметке FrameLayout нельзя определить различное местоположение для дочернего объекта View.
         // Последующие дочерние объекты View будут просто рисоваться поверх предыдущих представлений,
         //   частично или полностью затеняя их, если находящийся сверху объект непрозрачен
-        frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
+        //--frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+
         //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
         // создем экземпляр видоискателя = превью камеры
-        vfv = new ViewfinderView(this, null);
+        //--vfv = new ViewfinderView(this, null);
 
         // ...и видоискатель поверх
         // если убрать - не показывает видоискатель и точки, но сканирует не хуже.
         // Требуется размер куэр 1/4 ширины экрана.
 
         //---здесь убирать эффекты видоискателя
-        frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        //--frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-        setContentView(frameLayout);
+        //setContentView(frameLayout);
 
     }
 
