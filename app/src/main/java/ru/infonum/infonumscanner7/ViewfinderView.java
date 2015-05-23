@@ -20,8 +20,11 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.util.AttributeSet;
@@ -133,21 +136,25 @@ public final class ViewfinderView extends View {
 
         //устанавливаем цвет заливки фрейма
         paint.setColor(resultBitmap != null ? resultColor : maskColor);
-        //canvas.drawRect(0, 0, width, height, paint);
+        canvas.drawRect(0, 0, width, height, paint);
 
         //canvas.drawRect(0, 0, width, frame.top, paint);
         //canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
         //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
         //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
 
-        paint.setAlpha(0xFFFFFFFF);
-        paint.setStyle(Paint.Style.STROKE);
-        canvas.drawCircle(
-                width / 2,
-                height / 2,
-                width / 4,
-                paint
-        );
+        //paint.setAlpha(0xFFFFFFFF);
+        //paint.setStyle(Paint.Style.STROKE);
+        // коорд. центра, радиус
+        //canvas.drawCircle(width / 2, height / 2, width / 4, paint);
+
+
+        paint.setColor(Color.TRANSPARENT); // An obvious color to help debugging
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT)); // A out B http://en.wikipedia.org/wiki/File:Alpha_compositing.svg
+        canvas.drawCircle(getWidth() / 2, getHeight(), Math.min(getWidth(), getHeight()) / 2, paint);
+
+
+
 
         if (resultBitmap != null) {
             // Рисуем прозрачным получившийся битмап поверх прямоугольника для сканирования
