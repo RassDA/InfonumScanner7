@@ -108,7 +108,7 @@ public final class ViewfinderView extends View {
          *  Видимо, координаты точек передаются в системе матрицы камеры.
          *  Чтобы они правильно отрисовывались, нужно масштабировать.
          *
-         *
+         *  размер канвы = размеру поверхности
          *
          *
          *
@@ -131,10 +131,18 @@ public final class ViewfinderView extends View {
         // 1. Рисуем темную полосу по всей ширине экрана до верха светлой части
         // 2,3. Рисуем темные прямоугольники слева и справа от светлой части по ее высоте
         // 4. Рисуем темную полосу по всей ширине экрана от низа светлой части
-        canvas.drawRect(0, 0, width, frame.top, paint);
-        canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-        canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-        canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+
+        //canvas.drawRect(0, 0, width, frame.top, paint);
+        //canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
+        //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
+        //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+
+        canvas.drawCircle(
+                width / 2,
+                (height / 2,
+                width / 4,
+                paint
+        );
 
         if (resultBitmap != null) {
             // Рисуем прозрачным получившийся битмап поверх прямоугольника для сканирования

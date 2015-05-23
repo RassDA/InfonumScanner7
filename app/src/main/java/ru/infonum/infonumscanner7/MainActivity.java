@@ -133,19 +133,19 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     public void surfaceCreated(SurfaceHolder holder) {
         // первый раз создана поверхность для рисования
         try {
+            // задаем поверхность для отображения превью
             camera.setPreviewDisplay(holder);
             camera.setPreviewCallback(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-
         // камеру переводим в горизонт
         Camera.Parameters cameraParameters = camera.getParameters();
         cameraParameters.set("orientation", "landscape"); //def="landscape"
         camera.setParameters(cameraParameters);
 
-        // откуда параметры поверхности? От экрана?
+        // параметры поверхности от SurfaceView, которая выбрана для отображения превью камеры
         LayoutParams layoutParams = previewSurface.getLayoutParams();
         outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
 
@@ -154,7 +154,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
 //960,540
 
-        // Взяли размер превью установленный по-умолчанию, хотя их там список
+        // Взяли размер превью, установленный по-умолчанию, хотя их там список
         // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
@@ -162,9 +162,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         outStr += "aspect " + aspectCamPreview +"\n";
 //640.480 = 1.3
 
-        // Переопределяем высоту поверхности для рисования.
-        // Берем за основу ширину экрана.
-        // чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
+        // Размер нашего preview можно менять в процессе выполнения программы:
+        // Переопределяем высоту поверхности для рисования. Берем за основу ширину экрана.
+        // Чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // Лейаут получается большей высоты чем экран ! Но нас это не беспокоит почему-то.
         layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
         outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
@@ -172,7 +172,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         previewSurface.setLayoutParams(layoutParams);
         // как-то это сохранится в параметрах превью камеры
 
-        // запускает захват кадров и рисование превью на экране.
+        // запускает захват кадров и рисование превью на поверхности (экране).
         // В действительности, превью стартует после setPreviewDisplay(SurfaceHolder).
         camera.startPreview();
 
