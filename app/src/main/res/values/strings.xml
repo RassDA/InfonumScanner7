@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">инфОнум Сканер v.200</string>
+    <string name="description">
+        Нажмите кнопку внизу, чтобы послать уведомление.
+    </string>
+    <string name="button_txt">Отправить извещение</string>
+    <string name="site">http://infonum.ru/</string>
+</resources>

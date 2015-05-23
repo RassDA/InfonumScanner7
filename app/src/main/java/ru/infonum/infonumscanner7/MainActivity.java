@@ -65,6 +65,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
         previewSurface = new SurfaceView(this);
+        //Создание класса, унаследованного от SurfaceView и реализующего интерфейс SurfaceHolder.Callback
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
         surfaceHolder.addCallback(this);
         // хотим получать соответствующие обратные вызовы.
@@ -141,8 +142,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         LayoutParams layoutParams = previewSurface.getLayoutParams();
         outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
 
-        // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копирум ширину?
-        // Обязательно устанавливать. Ширина и высота не инициализированы по-ум. :(
+        // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копируем ширину?
+        // Обязательно устанавливать. Ширина и высота не инициализированы по-умолчанию. :( =(-10,0)
         layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
 //960,540
 
