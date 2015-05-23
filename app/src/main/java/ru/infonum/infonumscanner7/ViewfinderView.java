@@ -123,8 +123,6 @@ public final class ViewfinderView extends View {
         int height = canvas.getHeight();
 ///*--- отключает затемнение обрамления видоискателя + скачущие точки
 
-        //устанавливаем цвет заливки фрейма
-        paint.setColor(resultBitmap != null ? resultColor : maskColor);
 
         // Затемняем обрамление.
         // Draw the exterior (i.e. outside the framing rect) darkened
@@ -132,17 +130,23 @@ public final class ViewfinderView extends View {
         // 2,3. Рисуем темные прямоугольники слева и справа от светлой части по ее высоте
         // 4. Рисуем темную полосу по всей ширине экрана от низа светлой части
 
-        //canvas.drawRect(0, 0, width, frame.top, paint);
-        //canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-        //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-        //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
-
+        paint.setAlpha(255);
         canvas.drawCircle(
                 width / 2,
                 height / 2,
                 width / 4,
                 paint
         );
+
+        //устанавливаем цвет заливки фрейма
+        paint.setColor(resultBitmap != null ? resultColor : maskColor);
+        canvas.drawRect(0, 0, width, height, paint);
+
+        //canvas.drawRect(0, 0, width, frame.top, paint);
+        //canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
+        //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
+        //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
+
 
         if (resultBitmap != null) {
             // Рисуем прозрачным получившийся битмап поверх прямоугольника для сканирования
