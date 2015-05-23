@@ -2,6 +2,7 @@ package ru.infonum.infonumscanner7;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import com.google.zxing.BarcodeFormat;
@@ -54,14 +57,14 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         super.onCreate(savedInstanceState);
         // инициализирует поверхность для рисования
 
+        setContentView(R.layout.main_activity);
         // экран переводим в горизонт, полный экран, без заголовка
-        //--setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        //--getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //--requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
-        setContentView(R.layout.main_activity);
         previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
 
         //--previewSurface = new SurfaceView(this);
@@ -96,7 +99,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         //---здесь убирать эффекты видоискателя
         frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-        setContentView(frameLayout);
+        //setContentView(frameLayout);
 
     }
 

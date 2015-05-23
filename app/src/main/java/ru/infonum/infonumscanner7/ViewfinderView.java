@@ -80,7 +80,6 @@ public final class ViewfinderView extends View {
 
     public ViewfinderView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         // Инициализируем здесь единожды, вместо того чтобы вызывать это каждый раз в onDraw().
         // Initialize these once for performance rather than calling them every time in onDraw().
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
