@@ -139,7 +139,7 @@ public final class ViewfinderView extends View {
 
         canvas.drawCircle(
                 width / 2,
-                (height / 2,
+                height / 2,
                 width / 4,
                 paint
         );
