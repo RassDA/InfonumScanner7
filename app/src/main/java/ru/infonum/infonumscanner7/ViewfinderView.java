@@ -76,7 +76,7 @@ public final class ViewfinderView extends View {
     private List<ResultPoint> lastPossibleResultPoints;
     private String TAG = ViewfinderView.class.getSimpleName();
     private Rect framingRect,framingRectInPreview;
-
+    private PorterDuffXfermode xfermode;
     public static String outStr = "";
 
     // This constructor is used when the class is built from an XML resource.
@@ -93,6 +93,7 @@ public final class ViewfinderView extends View {
         resultColor2 = resources.getColor(R.color.result_points);
         possibleResultPoints = new ArrayList<ResultPoint>(5);
         lastPossibleResultPoints = null;
+        xfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT);
     }
 
     public void setCamera(Camera camera) {
@@ -148,10 +149,10 @@ public final class ViewfinderView extends View {
         // коорд. центра, радиус
         //canvas.drawCircle(width / 2, height / 2, width / 4, paint);
 
-
+        // рисует вместо заливки в центре экрана прозрачный квадрат, а должен - круг.
         paint.setColor(Color.TRANSPARENT); // An obvious color to help debugging
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT)); // A out B http://en.wikipedia.org/wiki/File:Alpha_compositing.svg
-        canvas.drawCircle(getWidth() / 2, getHeight(), Math.min(getWidth(), getHeight()) / 2, paint);
+        paint.setXfermode(xfermode); // A out B http://en.wikipedia.org/wiki/File:Alpha_compositing.svg
+        canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
 
 
 
