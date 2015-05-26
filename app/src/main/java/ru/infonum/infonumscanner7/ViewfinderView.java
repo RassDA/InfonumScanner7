@@ -129,8 +129,8 @@ public final class ViewfinderView extends View {
 
         // Получаем координаты центрального половинного фрейма
         Rect frame = getFramingRect();
-        //Rect frame = null;
-        if (frame != null) frame.set(0, 0, width, height);
+
+        frame = new Rect(0, 0, width, height); //перестает сканировать
 
         // Затемняем обрамление.
         //устанавливаем цвет заливки фрейма
@@ -151,7 +151,8 @@ public final class ViewfinderView extends View {
         // =3 : сторона = 2/3 короткой стороны
         // =5 : весь экран
 
-
+        paint.setTextSize(30);
+        canvas.drawText(width + " " + height, 100, 100, paint);
 
 
         if (resultBitmap != null) {
