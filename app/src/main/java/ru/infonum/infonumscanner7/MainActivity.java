@@ -55,9 +55,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // инициализирует поверхность для рисования
 
         // экран переводим в горизонт, полный экран, без заголовка
+        // должны идти перед setContentView
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -69,6 +69,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
 
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
+
+        //? HolderCallback holderCallback = new HolderCallback();
+        //? holder.addCallback(holderCallback);
 
         surfaceHolder.addCallback(this);
         vfv = (ViewfinderView) findViewById(R.id.vfv);
