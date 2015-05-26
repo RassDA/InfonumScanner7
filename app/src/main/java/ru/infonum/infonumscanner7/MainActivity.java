@@ -69,16 +69,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         //--FrameLayout frameLayout = new FrameLayout(this);
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
-        previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
-        //--previewSurface = new SurfaceView(this);
-
-        //Создание класса, унаследованного от SurfaceView и реализующего интерфейс SurfaceHolder.Callback
-        SurfaceHolder surfaceHolder = previewSurface.getHolder();
-        surfaceHolder.addCallback(this);
-        // хотим получать соответствующие обратные вызовы.
-        // будем отрисовывать картинку с камеры и...
-
-
         // Тип верстки с одним эл. в строке.
         // Если внутри несколько элементов, то след. будет поверх предыд.
         // Обычно это пустое пространство на экране, которое можно заполнить
@@ -90,6 +80,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
         //frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
+        previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
+        //--previewSurface = new SurfaceView(this);
+
+        //Создание класса, унаследованного от SurfaceView и реализующего интерфейс SurfaceHolder.Callback
+        SurfaceHolder surfaceHolder = previewSurface.getHolder();
+        surfaceHolder.addCallback(this);
+        // хотим получать соответствующие обратные вызовы.
+        // будем отрисовывать картинку с камеры и...
+
+
+
         //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
         // создем экземпляр видоискателя = превью камеры
         vfv = new ViewfinderView(this, null);
@@ -99,9 +100,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Требуется размер куэр 1/4 ширины экрана.
 
         //---здесь убирать эффекты видоискателя
-        frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        //--frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
-        setContentView(frameLayout);
+        //--setContentView(frameLayout);
 
     }
 
