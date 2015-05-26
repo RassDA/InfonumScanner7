@@ -149,28 +149,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
+//640.480 = 1.3
 
         // параметры поверхности от SurfaceView, которая выбрана для отображения превью камеры
         LayoutParams layoutParams = previewSurface.getLayoutParams();
-        outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
+//960,540
+        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
+        layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
 
         // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копируем ширину?
         // Обязательно устанавливать. Ширина и высота не инициализированы по-умолчанию. :( =(-10,0)
-        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
-//960,540
 
+        outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
         outStr += "camPreviewSize.w.h " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
         outStr += "aspect " + aspectCamPreview +"\n";
-//640.480 = 1.3
+        outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
 
         // Размер нашего preview можно менять в процессе выполнения программы:
         // Переопределяем высоту поверхности для рисования. Берем за основу ширину экрана.
         // Чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // Лейаут получается большей высоты чем экран ! Но нас это не беспокоит почему-то.
-        layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
-        outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
-//960,720
         previewSurface.setLayoutParams(layoutParams);
+//960,720
         // как-то это сохранится в параметрах превью камеры
 
         // запускает захват кадров и рисование превью на поверхности (экране).
