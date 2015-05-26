@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -85,6 +84,8 @@ public final class ViewfinderView extends View {
         super(context, attrs);
         // Инициализируем здесь единожды, вместо того чтобы вызывать это каждый раз в onDraw().
         // Initialize these once for performance rather than calling them every time in onDraw().
+
+        // создаем битмап для рисования на экране
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         Resources resources = getResources();
         maskColor = resources.getColor(R.color.viewfinder_mask);
@@ -93,7 +94,7 @@ public final class ViewfinderView extends View {
         resultColor2 = resources.getColor(R.color.result_points);
         possibleResultPoints = new ArrayList<ResultPoint>(5);
         lastPossibleResultPoints = null;
-        xfermode = new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT);
+        xfermode = new PorterDuffXfermode(PorterDuff.Mode.DST_OUT);
     }
 
     public void setCamera(Camera camera) {
@@ -119,52 +120,51 @@ public final class ViewfinderView extends View {
          */
 
 
-        // Получаем координаты центрального половинного фрейма
-        Rect frame = getFramingRect();
+
         // TODO проверять frame на null
         // определяем размеры области рисования
         int width = canvas.getWidth();
         int height = canvas.getHeight();
 ///*--- отключает затемнение обрамления видоискателя + скачущие точки
 
+        // Получаем координаты центрального половинного фрейма
+        Rect frame = getFramingRect();
+        //Rect frame = null;
+        if (frame != null) frame.set(0, 0, width, height);
 
         // Затемняем обрамление.
-        // Draw the exterior (i.e. outside the framing rect) darkened
-        // 1. Рисуем темную полосу по всей ширине экрана до верха светлой части
-        // 2,3. Рисуем темные прямоугольники слева и справа от светлой части по ее высоте
-        // 4. Рисуем темную полосу по всей ширине экрана от низа светлой части
-
-
         //устанавливаем цвет заливки фрейма
-        paint.setColor(resultBitmap != null ? resultColor : maskColor);
-        canvas.drawRect(0, 0, width, height, paint);
+        canvas.drawColor(resultBitmap != null ? resultColor : maskColor);
 
-        //canvas.drawRect(0, 0, width, frame.top, paint);
-        //canvas.drawRect(0, frame.top, frame.left, frame.bottom + 1, paint);
-        //canvas.drawRect(frame.right + 1, frame.top, width, frame.bottom + 1, paint);
-        //canvas.drawRect(0, frame.bottom + 1, width, height, paint);
-
-        //paint.setAlpha(0xFFFFFFFF);
+        // рисуем тонкую окружность
         //paint.setStyle(Paint.Style.STROKE);
+        //paint.setStrokeWidth(3);
         // коорд. центра, радиус
         //canvas.drawCircle(width / 2, height / 2, width / 4, paint);
 
-        // рисует вместо заливки в центре экрана прозрачный квадрат, а должен - круг.
-        paint.setColor(Color.TRANSPARENT); // An obvious color to help debugging
-        paint.setXfermode(xfermode); // A out B http://en.wikipedia.org/wiki/File:Alpha_compositing.svg
+        // для правильного рисования круга: PorterDuff.Mode.DST_OUT.
+        paint.setXfermode(xfermode);
         canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
+        // делитель радиуса:
+        // =1 : во весь экран, а должен оставлять полосы по ширине
+        // =2 : в половину короткой стороны
+        // =3 : сторона = 2/3 короткой стороны
+        // =5 : весь экран
 
 
 
 
         if (resultBitmap != null) {
-            // Рисуем прозрачным получившийся битмап поверх прямоугольника для сканирования
+            // Рисуем непрозрачным получившийся битмап поверх прямоугольника для сканирования
             // то есть, стираем предыдущие точки, если новых нет = обновляем фрейм из превью
             // Draw the opaque result bitmap over the scanning rectangle
             paint.setAlpha(CURRENT_POINT_OPACITY);
+
+            // Draw the specified bitmap, scaling/translating automatically to fill the destination rectangle.
+            // If the source rectangle is not null, it specifies the subset of the bitmap to draw.
             canvas.drawBitmap(resultBitmap, null, frame, paint);
         } else {
-            // В этом случае рисуем скачущие точки = лазерная линия
+            // В этом случае рисуем скачущие точки
             // Получаем координаты растянутого центрального фрейма
             // и зачем-то называем его превью
             Rect previewFrame = getFramingRectInPreview();
@@ -202,12 +202,15 @@ public final class ViewfinderView extends View {
                         //frameTop - (int) (point.getY() * scaleY),
                         //POINT_SIZE, paint);
 
-                        canvas.drawCircle(
-                                (960 - frameLeft + (int) (point.getX())) / 2,
-                                (540 - frameTop + (int) (point.getY())) / 2,
-                                POINT_SIZE,
-                                paint
-                        );
+                        canvas.drawCircle((int) point.getX(), (int) point.getY(),
+                                POINT_SIZE, paint);
+
+                        //canvas.drawCircle(
+                        //        (960 - frameLeft + (int) (point.getX())) / 2,
+                        //        (540 - frameTop + (int) (point.getY())) / 2,
+                        //        POINT_SIZE,
+                        //        paint
+                        //);
                     }
                 }
             }
@@ -230,13 +233,14 @@ public final class ViewfinderView extends View {
                         //canvas.drawCircle((int) (frameLeft + point.getX() * scaleX),
                         //      (int) (frameTop + point.getY() * scaleY),
                         //      radius, paint);
-
-                        canvas.drawCircle(
-                                (960 - frameLeft + (int) (point.getX())) /2,
-                                (540 - frameTop + (int) (point.getY())) / 2,
-                                POINT_SIZE,
-                                paint
-                        );
+                        canvas.drawCircle((int) point.getX(), (int) point.getY(),
+                                POINT_SIZE * 2, paint);
+                        //canvas.drawCircle(
+                        //        (960 - frameLeft + (int) (point.getX())) /2,
+                        //        (540 - frameTop + (int) (point.getY())) / 2,
+                        //        POINT_SIZE * 2,
+                        //        paint
+                        //);
 
                     }
                 }
