@@ -153,14 +153,16 @@ public final class ViewfinderView extends View {
 
         paint.setTextSize(60);
         canvas.drawText(width + " " + height, 100, 100, paint);
-        canvas.drawText(outStr, 0, 0, paint);
+        //canvas.drawText(outStr, 0, 0, paint);
 
 
         if (resultBitmap != null) {
             // Рисуем непрозрачным получившийся битмап поверх прямоугольника для сканирования
             // то есть, стираем предыдущие точки, если новых нет = обновляем фрейм из превью
             // Draw the opaque result bitmap over the scanning rectangle
-            paint.setAlpha(CURRENT_POINT_OPACITY);
+
+            //paint.setAlpha(CURRENT_POINT_OPACITY);
+            paint.setAlpha(255);
 
             // Draw the specified bitmap, scaling/translating automatically to fill the destination rectangle.
             // If the source rectangle is not null, it specifies the subset of the bitmap to draw.
@@ -204,7 +206,7 @@ public final class ViewfinderView extends View {
                         //frameTop - (int) (point.getY() * scaleY),
                         //POINT_SIZE, paint);
 
-                        canvas.drawCircle((int) point.getX(), (int) point.getY(),
+                        canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE, paint);
 
                         //canvas.drawCircle(
@@ -235,7 +237,7 @@ public final class ViewfinderView extends View {
                         //canvas.drawCircle((int) (frameLeft + point.getX() * scaleX),
                         //      (int) (frameTop + point.getY() * scaleY),
                         //      radius, paint);
-                        canvas.drawCircle((int) point.getX(), (int) point.getY(),
+                        canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE * 2, paint);
                         //canvas.drawCircle(
                         //        (960 - frameLeft + (int) (point.getX())) /2,
