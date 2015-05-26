@@ -62,20 +62,22 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        //--setContentView(R.layout.main_activity);
-        //--previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
+        setContentView(R.layout.main_activity);
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
 
-        previewSurface = new SurfaceView(this);
+        //--FrameLayout frameLayout = new FrameLayout(this);
+        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
+
+        previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
+        //--previewSurface = new SurfaceView(this);
+
         //Создание класса, унаследованного от SurfaceView и реализующего интерфейс SurfaceHolder.Callback
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
         surfaceHolder.addCallback(this);
         // хотим получать соответствующие обратные вызовы.
         // будем отрисовывать картинку с камеры и...
 
-        FrameLayout frameLayout = new FrameLayout(this);
-        //--FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
         // Тип верстки с одним эл. в строке.
         // Если внутри несколько элементов, то след. будет поверх предыд.
@@ -86,7 +88,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Последующие дочерние объекты View будут просто рисоваться поверх предыдущих представлений,
         //   частично или полностью затеняя их, если находящийся сверху объект непрозрачен
 
-        frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        //frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 
         //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
         // создем экземпляр видоискателя = превью камеры
@@ -155,8 +157,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         LayoutParams layoutParams = previewSurface.getLayoutParams();
 //960,540
         layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
-        //--layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
-        layoutParams.height = previewSurface.getHeight();
+        layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
+
 
         // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копируем ширину?
         // Обязательно устанавливать. Ширина и высота не инициализированы по-умолчанию. :( =(-10,0)
@@ -252,6 +254,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 //bytes, previewSize.width, previewSize.height, rect.left, rect.top,
                 //        rect.width(), rect.height(), false);
 
+                // массив, размер массива, прямоугольник для сканирования, отражение.
                 LuminanceSource source = new PlanarYUVLuminanceSource(
                         bytes, previewSize.width, previewSize.height, rect.left, rect.top,
                         rect.width(), rect.height(), false);
