@@ -13,7 +13,6 @@ import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -64,10 +63,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
         setContentView(R.layout.main_activity);
 
-        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
-
         previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
-
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
 
         //? HolderCallback holderCallback = new HolderCallback();
