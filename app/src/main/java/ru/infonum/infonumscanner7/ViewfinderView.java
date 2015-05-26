@@ -151,8 +151,9 @@ public final class ViewfinderView extends View {
         // =3 : сторона = 2/3 короткой стороны
         // =5 : весь экран
 
-        paint.setTextSize(30);
+        paint.setTextSize(60);
         canvas.drawText(width + " " + height, 100, 100, paint);
+        canvas.drawText(outStr, 0, 0, paint);
 
 
         if (resultBitmap != null) {
