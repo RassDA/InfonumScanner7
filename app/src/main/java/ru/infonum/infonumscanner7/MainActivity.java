@@ -57,12 +57,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         super.onCreate(savedInstanceState);
         // инициализирует поверхность для рисования
 
+        setContentView(R.layout.main_activity);
         // экран переводим в горизонт, полный экран, без заголовка
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        //--setContentView(R.layout.main_activity);
         //--previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
         // Предоставляет отдельную область для рисования,
         //   действия с которой должны быть вынесены в отдельный поток приложения.
