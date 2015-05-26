@@ -63,47 +63,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.main_activity);
-        // Предоставляет отдельную область для рисования,
-        //   действия с которой должны быть вынесены в отдельный поток приложения.
 
-        //--FrameLayout frameLayout = new FrameLayout(this);
         FrameLayout frameLayout = (FrameLayout) findViewById(R.id.frameLayout);
 
-        // Тип верстки с одним эл. в строке.
-        // Если внутри несколько элементов, то след. будет поверх предыд.
-        // Обычно это пустое пространство на экране, которое можно заполнить
-        //   только дочерним объектом View или ViewGroup.
-        // Все дочерние элементы FrameLayout прикрепляются к верхнему левому углу экрана.
-        // В разметке FrameLayout нельзя определить различное местоположение для дочернего объекта View.
-        // Последующие дочерние объекты View будут просто рисоваться поверх предыдущих представлений,
-        //   частично или полностью затеняя их, если находящийся сверху объект непрозрачен
-
-        //frameLayout.addView(previewSurface, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-
         previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
-        //--previewSurface = new SurfaceView(this);
 
-        //Создание класса, унаследованного от SurfaceView и реализующего интерфейс SurfaceHolder.Callback
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
+
         surfaceHolder.addCallback(this);
-        // хотим получать соответствующие обратные вызовы.
-        // будем отрисовывать картинку с камеры и...
-
-
-
-        //если не отрисовывать картинку с камеры, то не сканирует и не показывает видоискатель
-        // создем экземпляр видоискателя = превью камеры
-        vfv = new ViewfinderView(this, null);
-
-        // ...и видоискатель поверх
-        // если убрать - не показывает видоискатель и точки, но сканирует не хуже.
-        // Требуется размер куэр 1/4 ширины экрана.
-
-        //---здесь убирать эффекты видоискателя
-        //--frameLayout.addView(vfv, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-
-        //--setContentView(frameLayout);
-
+        vfv = (ViewfinderView) findViewById(R.id.vfv);
     }
 
     @Override
