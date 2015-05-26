@@ -155,7 +155,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         LayoutParams layoutParams = previewSurface.getLayoutParams();
 //960,540
         layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
-        layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
+        //--layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
+        layoutParams.height = previewSurface.getHeight();
 
         // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копируем ширину?
         // Обязательно устанавливать. Ширина и высота не инициализированы по-умолчанию. :( =(-10,0)
