@@ -145,6 +145,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         cameraParameters.set("orientation", "landscape"); //def="landscape"
         camera.setParameters(cameraParameters);
 
+        // Взяли размер превью, установленный по-умолчанию, хотя их там список
+        // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
+        Size camPreviewSize = camera.getParameters().getPreviewSize();
+        double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
+
         // параметры поверхности от SurfaceView, которая выбрана для отображения превью камеры
         LayoutParams layoutParams = previewSurface.getLayoutParams();
         outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
@@ -154,10 +159,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
 //960,540
 
-        // Взяли размер превью, установленный по-умолчанию, хотя их там список
-        // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
-        Size camPreviewSize = camera.getParameters().getPreviewSize();
-        double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
         outStr += "camPreviewSize.w.h " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
         outStr += "aspect " + aspectCamPreview +"\n";
 //640.480 = 1.3
