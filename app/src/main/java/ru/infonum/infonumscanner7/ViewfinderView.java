@@ -144,7 +144,8 @@ public final class ViewfinderView extends View {
 
         // для правильного рисования круга: PorterDuff.Mode.DST_OUT.
         paint.setXfermode(xfermode);
-        canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
+        canvas.drawCircle(width / 2, height / 2, 200, paint);
+        //--canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
         // делитель радиуса:
         // =1 : во весь экран, а должен оставлять полосы по ширине
         // =2 : в половину короткой стороны
@@ -163,6 +164,7 @@ public final class ViewfinderView extends View {
 
             //paint.setAlpha(CURRENT_POINT_OPACITY);
             paint.setAlpha(255);
+
 
             // Draw the specified bitmap, scaling/translating automatically to fill the destination rectangle.
             // If the source rectangle is not null, it specifies the subset of the bitmap to draw.
@@ -205,7 +207,6 @@ public final class ViewfinderView extends View {
                         //canvas.drawCircle(frameLeft - (int) (point.getX() * scaleX),
                         //frameTop - (int) (point.getY() * scaleY),
                         //POINT_SIZE, paint);
-
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE, paint);
 
@@ -237,6 +238,7 @@ public final class ViewfinderView extends View {
                         //canvas.drawCircle((int) (frameLeft + point.getX() * scaleX),
                         //      (int) (frameTop + point.getY() * scaleY),
                         //      radius, paint);
+
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE * 2, paint);
                         //canvas.drawCircle(
