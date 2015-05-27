@@ -122,9 +122,9 @@ public final class ViewfinderView extends View {
         int height = canvas.getHeight();
 
         // Получаем координаты центрального половинного фрейма
-        Rect frame = getFramingRect();
 
-        frame = new Rect(0, 0, width, height); //перестает сканировать
+        Rect frame = new Rect(0, 0, width, height);
+        //--Rect frame = getFramingRect();
 
         // Затемняем обрамление.
         //устанавливаем цвет заливки фрейма
@@ -138,6 +138,7 @@ public final class ViewfinderView extends View {
 
         // для правильного рисования прозрачного круга: PorterDuff.Mode.DST_OUT.
         paint.setXfermode(xfermode);
+
         int rad = 200;
         canvas.drawCircle(width / 2, height / 2, rad, paint);
         //--canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
@@ -146,7 +147,7 @@ public final class ViewfinderView extends View {
         paint.setTextSize(60);
         String s = "";
         s += width + " " + height;
-        s += "\n" + Math.min(width, height) / 3 + " r=" + rad;
+        s += "\n" + Math.min(width, height) / 2 + " r=" + rad;
         canvas.drawText(s, 100, 100, paint);
         //canvas.drawText(outStr, 0, 0, paint);
 
@@ -156,8 +157,8 @@ public final class ViewfinderView extends View {
             // то есть, стираем предыдущие точки, если новых нет = обновляем фрейм из превью
             // Draw the opaque result bitmap over the scanning rectangle
 
-            //--paint.setAlpha(CURRENT_POINT_OPACITY);
-            paint.setAlpha(255);
+            paint.setAlpha(CURRENT_POINT_OPACITY);
+            //--paint.setAlpha(255);
 
 
             // Draw the specified bitmap, scaling/translating automatically to fill the destination rectangle.
@@ -235,13 +236,6 @@ public final class ViewfinderView extends View {
 
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE * 2, paint);
-                        //canvas.drawCircle(
-                        //        (960 - frameLeft + (int) (point.getX())) /2,
-                        //        (540 - frameTop + (int) (point.getY())) / 2,
-                        //        POINT_SIZE * 2,
-                        //        paint
-                        //);
-
                     }
                 }
             }
