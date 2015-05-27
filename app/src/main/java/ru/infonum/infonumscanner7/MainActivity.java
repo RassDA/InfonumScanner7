@@ -3,7 +3,6 @@ package ru.infonum.infonumscanner7;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
@@ -249,7 +248,6 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 // декодированный массив с матрицы
                 //--BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                ViewfinderView.drawBlackBitmap((Bitmap) bitmap.getBlackRow());
 
                 final String bitmapStr = bitmap.getBlackMatrix().toString();
                 final String bitmapW = "" + bitmap.getWidth();
