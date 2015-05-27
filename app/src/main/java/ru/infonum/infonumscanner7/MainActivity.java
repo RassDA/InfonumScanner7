@@ -244,8 +244,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 });
                 MultiFormatReader mfr = new MultiFormatReader();
                 mfr.setHints(hints);
-                // декодированный битмап из массива с матрицы
+
+                // декодированный массив с матрицы
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
                 // расшифрованная строка из куэра
                 rawResult = mfr.decodeWithState(bitmap);
                 if (rawResult!=null) {

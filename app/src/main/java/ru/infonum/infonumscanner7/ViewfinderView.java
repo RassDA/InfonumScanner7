@@ -114,18 +114,12 @@ public final class ViewfinderView extends View {
          *  Чтобы они правильно отрисовывались, нужно масштабировать.
          *
          *  размер канвы = размеру поверхности
-         *
-         *
-         *
          */
-
-
 
         // TODO проверять frame на null
         // определяем размеры области рисования
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-///*--- отключает затемнение обрамления видоискателя + скачущие точки
 
         // Получаем координаты центрального половинного фрейма
         Rect frame = getFramingRect();
@@ -142,18 +136,18 @@ public final class ViewfinderView extends View {
         // коорд. центра, радиус
         //canvas.drawCircle(width / 2, height / 2, width / 4, paint);
 
-        // для правильного рисования круга: PorterDuff.Mode.DST_OUT.
+        // для правильного рисования прозрачного круга: PorterDuff.Mode.DST_OUT.
         paint.setXfermode(xfermode);
-        canvas.drawCircle(width / 2, height / 2, 200, paint);
+        int rad = 200;
+        canvas.drawCircle(width / 2, height / 2, rad, paint);
         //--canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
-        // делитель радиуса:
-        // =1 : во весь экран, а должен оставлять полосы по ширине
-        // =2 : в половину короткой стороны
-        // =3 : сторона = 2/3 короткой стороны
-        // =5 : весь экран
 
+        // пишем разрешение и др. на экран
         paint.setTextSize(60);
-        canvas.drawText(width + " " + height, 100, 100, paint);
+        String s = "";
+        s += width + " " + height;
+        s += "\n" + Math.min(width, height) / 3 + " r=" + rad;
+        canvas.drawText(s, 100, 100, paint);
         //canvas.drawText(outStr, 0, 0, paint);
 
 
@@ -162,7 +156,7 @@ public final class ViewfinderView extends View {
             // то есть, стираем предыдущие точки, если новых нет = обновляем фрейм из превью
             // Draw the opaque result bitmap over the scanning rectangle
 
-            //paint.setAlpha(CURRENT_POINT_OPACITY);
+            //--paint.setAlpha(CURRENT_POINT_OPACITY);
             paint.setAlpha(255);
 
 
@@ -262,7 +256,6 @@ public final class ViewfinderView extends View {
                         frame.right + POINT_SIZE,
                         frame.bottom + POINT_SIZE);
         }
-//*//---
     }
 
     public void addPossibleResultPoint(ResultPoint point) {
