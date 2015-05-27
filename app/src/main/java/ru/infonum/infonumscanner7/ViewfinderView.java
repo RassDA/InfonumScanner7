@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+
 /**
  * Поле видоискателя.
  * Это вью накладывается поверх превью камеры. Оно добавляет прямоугольник видоискателя
@@ -147,7 +148,7 @@ public final class ViewfinderView extends View {
         paint.setTextSize(60);
         String s = "";
         s += width + " " + height;
-        s += "\n" + Math.min(width, height) / 2 + " r=" + rad;
+        s += " " + Math.min(width, height) / 2 + " r=" + rad;
         canvas.drawText(s, 100, 100, paint);
         //canvas.drawText(outStr, 0, 0, paint);
 
@@ -252,6 +253,10 @@ public final class ViewfinderView extends View {
         }
     }
 
+
+    public static void drawBlackBitmap(Bitmap blackBitmap) {
+
+    }
     public void addPossibleResultPoint(ResultPoint point) {
         /*  Работает с возможно распознанными маркерами куэра, которые потом изображаются в виде лазерных точек,
          *    обращаясь к zxing?
@@ -271,7 +276,6 @@ public final class ViewfinderView extends View {
             }
         }
     }
-
     public synchronized Rect getFramingRectInPreview() {
         /* Зачем-то ??? возвращает размеры растянутого половинного центрального фрейма,
          * растянутого по каждой стороне на отношение
@@ -511,7 +515,7 @@ public final class ViewfinderView extends View {
             if (maybeFlippedWidth == screenResolution.x && maybeFlippedHeight == screenResolution.y) {
                 Point exactPoint = new Point(realWidth, realHeight);
                 Log.i(TAG, "Найден размер превью, наиболее подходящий под размер экрана: " + exactPoint);
-                outStr = "Размер превью, наиболее подходящий под размер экрана: " + exactPoint + "\n";
+                outStr += "Размер превью, наиболее подходящий под размер экрана: " + exactPoint + "\n";
                 return exactPoint;
             }
             // иначе, сверяем соотношения сторон у экрана и превью

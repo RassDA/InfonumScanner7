@@ -3,6 +3,7 @@ package ru.infonum.infonumscanner7;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
@@ -246,7 +247,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 mfr.setHints(hints);
 
                 // декодированный массив с матрицы
+                //--BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
                 BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                ViewfinderView.drawBlackBitmap((Bitmap) bitmap.getBlackRow());
+
+                final String bitmapStr = bitmap.getBlackMatrix().toString();
+                final String bitmapW = "" + bitmap.getWidth();
+                final String bitmapH = "" + bitmap.getHeight();
+
+
 
                 // расшифрованная строка из куэра
                 rawResult = mfr.decodeWithState(bitmap);
@@ -261,6 +270,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                             public void run() {
                                 Intent intent = new Intent(MainActivity.this, ResultActivity.class);
                                 intent.putExtra(ResultActivity.RESULT, rawResult.getText());
+                                intent.putExtra(ResultActivity.FORMAT, rawResult.getBarcodeFormat());
+                                //intent.putExtra(ResultActivity.BITMAPSTR, bitmapStr);
+                                //intent.putExtra(ResultActivity.BITMAPW, bitmapW);
+                                //intent.putExtra(ResultActivity.BITMAPH, bitmapH);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);
                             }

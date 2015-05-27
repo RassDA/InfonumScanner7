@@ -14,6 +14,11 @@ import java.util.UUID;
 public class ResultActivity extends Activity {
 
     public static final String RESULT = "result";
+    public static final String BITMAP = "bitmap";
+    public static final String FORMAT = "format";
+    public static final String BITMAPSTR = "bitmapstr";
+    public static final String BITMAPW = "bitmapw";
+    public static final String BITMAPH = "bitmaph";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,12 +26,13 @@ public class ResultActivity extends Activity {
 
         Intent intent = getIntent();
         String s = intent.getStringExtra(RESULT); // Результат распознавания
+        String sFormat = intent.getStringExtra(FORMAT); // Результат распознавания
+
         setContentView(R.layout.result_activity);
         //TextView tw = new TextView(this); // без xml
         EditText tw = (EditText) findViewById(R.id.textView);
         //tw.setGravity(Gravity.CENTER);
-        //tw.setTextSize(20); //------------------------------------ font size
-
+        //tw.setTextSize(20);
 
         String ss = "";
         String s2 = "";
@@ -211,6 +217,10 @@ public class ResultActivity extends Activity {
  *           ss += "\n#";
  *           ss += trustedUrlList[1];
  */
+            //ViewfinderView.outStr += intent.getStringExtra(BITMAPSTR);
+            //ViewfinderView.outStr += intent.getStringExtra(BITMAPW);
+            //ViewfinderView.outStr += intent.getStringExtra(BITMAPH);
+
             ss += "\n" + ViewfinderView.outStr;
             tw.setText(ss);
 
@@ -219,4 +229,6 @@ public class ResultActivity extends Activity {
         //без xml:
         //setContentView(tw, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
+
+
 }
