@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         super.onCreate(savedInstanceState);
 
         // экран переводим в горизонт, полный экран, без заголовка
-        // должны идти перед setContentView
+        // установка параметров должна идти перед setContentView
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -65,11 +65,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
         previewSurface = (SurfaceView) findViewById(R.id.surfaceView);
         SurfaceHolder surfaceHolder = previewSurface.getHolder();
-
-        //? HolderCallback holderCallback = new HolderCallback();
-        //? holder.addCallback(holderCallback);
-
         surfaceHolder.addCallback(this);
+
         vfv = (ViewfinderView) findViewById(R.id.vfv);
     }
 
@@ -100,17 +97,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
+    public void surfaceCreated(SurfaceHolder surfaceHolder) {
         // первый раз создана поверхность для рисования
         try {
             // задаем поверхность для отображения превью
-            camera.setPreviewDisplay(holder);
+            camera.setPreviewDisplay(surfaceHolder);
             camera.setPreviewCallback(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // камеру переводим в горизонт
+        // камеру тоже переводим в горизонт
         Camera.Parameters cameraParameters = camera.getParameters();
         cameraParameters.set("orientation", "landscape"); //def="landscape"
         camera.setParameters(cameraParameters);
@@ -119,30 +116,29 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
         Size camPreviewSize = camera.getParameters().getPreviewSize();
         double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
-//640.480 = 1.3
+//640,480 = 1.3
 
         // параметры поверхности от SurfaceView, которая выбрана для отображения превью камеры
-        LayoutParams layoutParams = previewSurface.getLayoutParams();
+        LayoutParams surfaceParams = previewSurface.getLayoutParams();
 //960,540
-        layoutParams.width = previewSurface.getWidth(); // *3 не искажает, увеличивает область сканирования, приближает
-        layoutParams.height = (int) (layoutParams.width / aspectCamPreview);
+        surfaceParams.width = previewSurface.getWidth();
+        surfaceParams.height = (int) (surfaceParams.width / aspectCamPreview);
 
+        previewSurface.setLayoutParams(surfaceParams);
+//960,720
 
         // в параметры лейаута уже скопировали параметры поверхности, а потом еще раз отдельно копируем ширину?
         // Обязательно устанавливать. Ширина и высота не инициализированы по-умолчанию. :( =(-10,0)
-
-        outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
-        outStr += "camPreviewSize.w.h " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
-        outStr += "aspect " + aspectCamPreview +"\n";
-        outStr += "layoutParams.w.h " + layoutParams.width + " " + layoutParams.height + "\n";
 
         // Размер нашего preview можно менять в процессе выполнения программы:
         // Переопределяем высоту поверхности для рисования. Берем за основу ширину экрана.
         // Чтобы изображение не выглядело искаженным из-за разных соотношений сторон матрицы и экрана,
         // Лейаут получается большей высоты чем экран ! Но нас это не беспокоит почему-то.
-        previewSurface.setLayoutParams(layoutParams);
-//960,720
         // как-то это сохранится в параметрах превью камеры
+        outStr += "previewSurface.w.h " + previewSurface.getWidth() + " " + previewSurface.getHeight()+ "\n";
+        outStr += "camPreviewSize.w.h " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
+        outStr += "aspect " + aspectCamPreview +"\n";
+        outStr += "layoutParams.w.h " + surfaceParams.width + " " + surfaceParams.height + "\n";
 
         // запускает захват кадров и рисование превью на поверхности (экране).
         // В действительности, превью стартует после setPreviewDisplay(SurfaceHolder).
@@ -156,26 +152,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-    }
-
-    @Override
-    public void onPreviewFrame(final byte[] bytes, final Camera camera) {
-        // вызывается при каждом кадре с камеры, чтобы доставлять копии превью на экран,
-        // готовыми к показу. Кадр превью в уст. формате возвращается в byte[].
-        // Будет вызвана, когда кадр станет доступен, если вызывалось через колбэк.
-        //
-        // Callback interface used to deliver copies of preview frames as they are displayed.
-        // onPreviewFrame - Called as preview frames are displayed
-        // Parameters:
-        //   data 	    the contents of the preview frame in the format defined by ImageFormat,
-        //              which can be queried with getPreviewFormat().
-        //              If setPreviewFormat(int) is never called,
-        //              the default will be the YCbCr_420_SP (NV21) format.
-        //   camera 	the Camera service object. б
-
-        new Recognizer(currKey, bytes).start();
-    }
+    public void surfaceDestroyed(SurfaceHolder holder) {}
 
     @Override
     public void onAutoFocus(boolean b, Camera cam) {
@@ -195,6 +172,28 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         }).start();
     }
 
+    @Override
+    public void onPreviewFrame(final byte[] bytes, final Camera camera) {
+        // Parameters:
+        //   data 	    the contents of the preview frame in the format defined by ImageFormat,
+        //              which can be queried with getPreviewFormat().
+        //              If setPreviewFormat(int) is never called,
+        //              the default will be the YCbCr_420_SP (NV21) format.
+        //   camera 	the Camera service object.
+        //
+        // вызывается при каждом кадре с камеры, чтобы доставлять копии превью на экран,
+        // готовыми к показу. Кадр превью в уст. формате возвращается в byte[].
+        // Будет вызвана, когда кадр станет доступен, если вызывалось через колбэк.
+        //
+        // Callback interface used to deliver copies of preview frames as they are displayed.
+        // onPreviewFrame - Called as preview frames are displayed
+
+        new Recognizer(currKey, bytes).start();
+        // Params:
+        // - current time, - global
+        // - bitmap to recognizing
+    }
+
     public class Recognizer extends Thread {
 
         private long key;
@@ -209,9 +208,9 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         public void run() {
             try {
                 // на каждом кадре с камеры извлекаем параметры превью - надо?
-                Size previewSize = camera.getParameters().getPreviewSize();
+                Size camPreviewSize = camera.getParameters().getPreviewSize();
                 // видимо, пересчитанные и сохраненные параметры при создании поверхности
-                outStr += "camera.previewSize " + previewSize.width + " " + previewSize.height + "\n";
+                outStr += "camera.previewSize " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
 //640.480
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
                 Rect rect = vfv.getFramingRectInPreview();
@@ -224,9 +223,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
                 // массив, размер массива, прямоугольник для сканирования, отражение.
                 LuminanceSource source = new PlanarYUVLuminanceSource(
-                        bytes, previewSize.width, previewSize.height, rect.left, rect.top,
+                        bytes, camPreviewSize.width, camPreviewSize.height, rect.left, rect.top,
                         rect.width(), rect.height(), false);
-                //def previewSize.width, false
                 // Если последний пар true, то точки появляются с правильной стороны, не зеркально,
                 // но перестает распознаваться код.
                 // Вывод - нужно зеркалить точки при рисовании геометрически.
