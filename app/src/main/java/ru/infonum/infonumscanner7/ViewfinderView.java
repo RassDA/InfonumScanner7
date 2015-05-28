@@ -32,6 +32,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ResultPoint;
 
 import java.util.ArrayList;
@@ -68,6 +69,7 @@ public final class ViewfinderView extends View {
     private Camera camera;
     private final Paint paint;
     private Bitmap resultBitmap;
+    private Bitmap bitmap3;
     private final int maskColor;
     private final int resultColor;
     private final int resultColor2;
@@ -140,15 +142,13 @@ public final class ViewfinderView extends View {
         // для правильного рисования прозрачного круга: PorterDuff.Mode.DST_OUT.
         paint.setXfermode(xfermode);
 
-        int rad = 200;
+        int rad = Math.min(width, height / 3);
         canvas.drawCircle(width / 2, height / 2, rad, paint);
-        //--canvas.drawCircle(width / 2, height / 2, Math.min(width, height / 3), paint);
 
         // пишем разрешение и др. на экран
         paint.setTextSize(60);
         String s = "";
-        s += width + " " + height;
-        s += " " + Math.min(width, height) / 2 + " r=" + rad;
+        s += width + " " + height + " " + rad;
         canvas.drawText(s, 100, 100, paint);
         //canvas.drawText(outStr, 0, 0, paint);
 
@@ -254,7 +254,7 @@ public final class ViewfinderView extends View {
     }
 
 
-    public static void drawBlackBitmap(Bitmap blackBitmap) {
+    public static void drawBlackBitmap(BinaryBitmap blackBitmap) {
 
     }
     public void addPossibleResultPoint(ResultPoint point) {

@@ -208,19 +208,17 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         public void run() {
             try {
                 // на каждом кадре с камеры извлекаем параметры превью - надо?
+                // для определения размеров массива байтов с матрицы перед распознаванием
                 Size camPreviewSize = camera.getParameters().getPreviewSize();
                 // видимо, пересчитанные и сохраненные параметры при создании поверхности
-                outStr += "camera.previewSize " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
+                //outStr += "camera.previewSize " + camPreviewSize.width + " " + camPreviewSize.height + "\n";
 //640.480
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
+                // определяет область распознавания?
                 Rect rect = vfv.getFramingRectInPreview();
                 //outStr += "vfv.getFramingRectInPreview " + rect + "\n";
 
                 // ищет маркеры только в превью камеры
-                //LuminanceSource source = new PlanarYUVLuminanceSource(
-                //bytes, previewSize.width, previewSize.height, rect.left, rect.top,
-                //        rect.width(), rect.height(), false);
-
                 // массив, размер массива, прямоугольник для сканирования, отражение.
                 LuminanceSource source = new PlanarYUVLuminanceSource(
                         bytes, camPreviewSize.width, camPreviewSize.height, rect.left, rect.top,
@@ -232,8 +230,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                 // параметры декодирования
                 Map<DecodeHintType,Object> hints = new HashMap<DecodeHintType, Object>();
                 Vector<BarcodeFormat> decodeFormats = new Vector<BarcodeFormat>(1);
-                // декодировать только QR
+                //Vector<BarcodeFormat> decodeFormats = new Vector<BarcodeFormat>(2);
+                // декодировать QR. AZTEC не работает?
                 decodeFormats.add(BarcodeFormat.QR_CODE);
+                //decodeFormats.add(BarcodeFormat.AZTEC);
+
                 hints.put(DecodeHintType.POSSIBLE_FORMATS, decodeFormats);
                 hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, new ResultPointCallback() {
                     @Override
@@ -247,13 +248,11 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
                 // декодированный массив с матрицы
                 //--BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
-                BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+                final BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
 
-                final String bitmapStr = bitmap.getBlackMatrix().toString();
+                //final String bitmapStr = bitmap.getBlackMatrix().toString();
                 final String bitmapW = "" + bitmap.getWidth();
                 final String bitmapH = "" + bitmap.getHeight();
-
-
 
                 // расшифрованная строка из куэра
                 rawResult = mfr.decodeWithState(bitmap);
@@ -263,16 +262,21 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 
                     if (key==currKey) {
                         currKey = System.currentTimeMillis();
+
+                        //предварительно проверить куэр на принадлежность Инфонуму.
+                        // Показать эмблему на месте круга сканирования или знак вопроса.
+
+
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 Intent intent = new Intent(MainActivity.this, ResultActivity.class);
 
                                 intent.putExtra(ResultActivity.RESULT, rawResult.getText());
-                                intent.putExtra(ResultActivity.FORMAT, rawResult.getBarcodeFormat());
+                                intent.putExtra(ResultActivity.FORMAT, rawResult.getBarcodeFormat().toString());
                                 //intent.putExtra(ResultActivity.BITMAPSTR, bitmapStr);
-                                //intent.putExtra(ResultActivity.BITMAPW, bitmapW);
-                                //intent.putExtra(ResultActivity.BITMAPH, bitmapH);
+                                intent.putExtra(ResultActivity.BITMAPW, bitmapW);
+                                intent.putExtra(ResultActivity.BITMAPH, bitmapH);
 
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);

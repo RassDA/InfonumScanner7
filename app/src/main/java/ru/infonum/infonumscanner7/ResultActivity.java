@@ -217,11 +217,15 @@ public class ResultActivity extends Activity {
  *           ss += "\n#";
  *           ss += trustedUrlList[1];
  */
-            //ViewfinderView.outStr += intent.getStringExtra(BITMAPSTR);
-            //ViewfinderView.outStr += intent.getStringExtra(BITMAPW);
-            //ViewfinderView.outStr += intent.getStringExtra(BITMAPH);
+            //String bitStr= intent.getStringExtra(BITMAPSTR);
+            String bitW = intent.getStringExtra(BITMAPW);
+            String bitH = intent.getStringExtra(BITMAPH);
+            String format = intent.getStringExtra(FORMAT);
 
             ss += "\n" + ViewfinderView.outStr;
+            ss += "\n" + format + " bitW=" + bitW + " bitH=" + bitH;
+            //ss += "\n" + bitStr;
+
             tw.setText(ss);
 
         }
