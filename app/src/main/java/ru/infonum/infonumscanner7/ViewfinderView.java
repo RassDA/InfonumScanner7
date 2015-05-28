@@ -80,6 +80,7 @@ public final class ViewfinderView extends View {
     private Rect framingRect,framingRectInPreview;
     private PorterDuffXfermode xfermode;
     public static String outStr = "";
+    public static boolean done = false;
 
     // This constructor is used when the class is built from an XML resource.
 
@@ -130,14 +131,7 @@ public final class ViewfinderView extends View {
         //--Rect frame = getFramingRect();
 
         // Затемняем обрамление.
-        //устанавливаем цвет заливки фрейма
         canvas.drawColor(resultBitmap != null ? resultColor : maskColor);
-
-        // рисуем тонкую окружность
-        //paint.setStyle(Paint.Style.STROKE);
-        //paint.setStrokeWidth(3);
-        // коорд. центра, радиус
-        //canvas.drawCircle(width / 2, height / 2, width / 4, paint);
 
         // для правильного рисования прозрачного круга: PorterDuff.Mode.DST_OUT.
         paint.setXfermode(xfermode);
@@ -161,7 +155,6 @@ public final class ViewfinderView extends View {
             paint.setAlpha(CURRENT_POINT_OPACITY);
             //--paint.setAlpha(255);
 
-
             // Draw the specified bitmap, scaling/translating automatically to fill the destination rectangle.
             // If the source rectangle is not null, it specifies the subset of the bitmap to draw.
             canvas.drawBitmap(resultBitmap, null, frame, paint);
@@ -169,6 +162,14 @@ public final class ViewfinderView extends View {
             // В этом случае рисуем скачущие точки
             // Получаем координаты растянутого центрального фрейма
             // и зачем-то называем его превью
+
+            if (done) {
+                //TODO сделать нормальную отрисовку эмблемы вместо круга сканирования
+                // неправильно
+                //canvas.drawColor(Color.GREEN);
+                //canvas.drawCircle(width / 2, height / 2, rad, paint);
+            }
+
             Rect previewFrame = getFramingRectInPreview();
             // TODO проверять previewFrame на null
 
@@ -193,6 +194,7 @@ public final class ViewfinderView extends View {
                 lastPossibleResultPoints = currentPossible;
                 paint.setAlpha(CURRENT_POINT_OPACITY);
                 paint.setColor(resultColor2);
+
                 synchronized (currentPossible) {
                     for (ResultPoint point : currentPossible) {
                         //  только для первого раза
@@ -258,10 +260,9 @@ public final class ViewfinderView extends View {
 
     }
     public void addPossibleResultPoint(ResultPoint point) {
-        /*  Работает с возможно распознанными маркерами куэра, которые потом изображаются в виде лазерных точек,
-         *    обращаясь к zxing?
+        /*  Управляет стеком точек.
          *
-         *    Используется в Main
+         *  Используется в Main
          *  Получает координаты маркера и заносит точку в список (стек)
          *  Если стек полон, то очищает его половину
          */

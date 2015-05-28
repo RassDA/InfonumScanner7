@@ -263,6 +263,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
                     if (key==currKey) {
                         currKey = System.currentTimeMillis();
 
+                        ViewfinderView.done = true;
+
                         //предварительно проверить куэр на принадлежность Инфонуму.
                         // Показать эмблему на месте круга сканирования или знак вопроса.
 
