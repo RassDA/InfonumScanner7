@@ -5,25 +5,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Log"
-        android:id="@+id/buttonLog"
-        android:clickable="true"
-        android:onClick="onCkickLog" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="238dp"
-        android:id="@+id/scrollView" >
+        android:id="@+id/scrollViewLog" >
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textView"
+            android:id="@+id/textViewLog"
             android:editable="true" />
 
     </ScrollView>
+
+    <SurfaceView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/surfaceViewLog"
+        android:layout_gravity="center_horizontal" />
 
 </LinearLayout>

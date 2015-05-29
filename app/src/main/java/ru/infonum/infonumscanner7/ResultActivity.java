@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import java.util.UUID;
@@ -19,28 +21,41 @@ public class ResultActivity extends Activity {
     public static final String BITMAPSTR = "bitmapstr";
     public static final String BITMAPW = "bitmapw";
     public static final String BITMAPH = "bitmaph";
+    public static final String LOG= "log";
+
+    //String bitStr= "";
+    public static String bitW = "";
+    public static String bitH = "";
+    public static String bitStr= "";
+    public static String sFormat = "";
+    public static String resultStr = "";
+
+    String ss = "";
+    String s2 = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Intent intent = getIntent();
-        String s = intent.getStringExtra(RESULT); // Результат распознавания
-        String sFormat = intent.getStringExtra(FORMAT); // Результат распознавания
-
         setContentView(R.layout.result_activity);
-        //TextView tw = new TextView(this); // без xml
-        EditText tw = (EditText) findViewById(R.id.textView);
+
+        //EditText tw = (EditText) findViewById(R.id.textView);
         //tw.setGravity(Gravity.CENTER);
         //tw.setTextSize(20);
 
-        String ss = "";
-        String s2 = "";
+        Intent intent = getIntent();
 
-// Проверка куэра на принадлежность Инфонуму по содержанию строки
-// Тестовое получение данных об устройстве
+        resultStr = intent.getStringExtra(RESULT); // Результат распознавания
+        sFormat = intent.getStringExtra(FORMAT); // тип кода - куэр или другой какой
+        //bitStr = intent.getStringExtra(BITMAPSTR);
+        bitW = intent.getStringExtra(BITMAPW);
+        bitH = intent.getStringExtra(BITMAPH);
 
-        if (s!=null) {
+
+
+        // Проверка куэра на принадлежность Инфонуму по содержанию строки
+        // Тестовое получение данных об устройстве
+
+        if (resultStr !=null) {
 
             // Получаем номер телефона - получить гарантированно не удастся. Нужно использовать другие данные.
 
@@ -97,11 +112,11 @@ public class ResultActivity extends Activity {
             String uriScheme = "";
             int i = 0;
 
-            ss = s + "\n";
+            ss = resultStr + "\n";
 
-            if (s.length() > 0) {
+            if (resultStr.length() > 0) {
 
-                Uri uri = Uri.parse(s);
+                Uri uri = Uri.parse(resultStr);
                 if (uri.getHost().length() > 0)
                     uriHost = uri.getHost().toLowerCase().trim();
                 if (uri.getScheme().length() > 0) uriScheme = uri.getScheme().toLowerCase().trim();
@@ -109,7 +124,7 @@ public class ResultActivity extends Activity {
                 if (uri.getScheme() != null) {
                     if (uriScheme.equalsIgnoreCase(SMS_PREFIX)) {// *** В куэре содержится СМС
 
-                        smsTxt = s.substring(s.indexOf(":") + 1); // удаляем префикс
+                        smsTxt = resultStr.substring(resultStr.indexOf(":") + 1); // удаляем префикс
                         if (smsTxt.contains(":")) {
                             // предполагаем (не проверяем): номер формата +70001112222, ":", текст
                             smsNum = smsTxt.substring(0, smsTxt.indexOf(":")).trim(); // номер - до ":"
@@ -148,7 +163,7 @@ public class ResultActivity extends Activity {
 */
                         } else // *** смс, но не наш номер
                             ss += trNoTxt + trNoTxt1 + "\n" + smsNum + "  " + smsTxt;
-                    } else if (s.substring(0, 10).toLowerCase().contains(URL_PREFIX)) { // *** В куэре содержится URL,
+                    } else if (resultStr.substring(0, 10).toLowerCase().contains(URL_PREFIX)) { // *** В куэре содержится URL,
 
                         // признак: в начале строки "http://"
                         // Это стандарт (вместо префикса типа SMSTO:) для обозначения ссылки.
@@ -217,21 +232,39 @@ public class ResultActivity extends Activity {
  *           ss += "\n#";
  *           ss += trustedUrlList[1];
  */
-            //String bitStr= intent.getStringExtra(BITMAPSTR);
-            String bitW = intent.getStringExtra(BITMAPW);
-            String bitH = intent.getStringExtra(BITMAPH);
-            String format = intent.getStringExtra(FORMAT);
 
             ss += "\n" + ViewfinderView.outStr;
-            ss += "\n" + format + " bitW=" + bitW + " bitH=" + bitH;
+            ss += "\n" + sFormat + " bitW=" + bitW + " bitH=" + bitH;
             //ss += "\n" + bitStr;
 
-            tw.setText(ss);
+            //tw.setText(ss);
 
         }
 
         //без xml:
         //setContentView(tw, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        Button buttonLog = (Button) findViewById(R.id.buttonLog);
+
+
+        buttonLog.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent intentLog = new Intent(getBaseContext(), LogActivity.class);
+
+                intentLog.putExtra(ResultActivity.LOG, ss);
+
+                //intent.putExtra(ResultActivity.RESULT, resultStr);
+                //intent.putExtra(ResultActivity.FORMAT, sFormat);
+                //intent.putExtra(ResultActivity.BITMAPSTR, bitmapStr);
+                //intent.putExtra(ResultActivity.BITMAPW, bitW);
+                //intent.putExtra(ResultActivity.BITMAPH, bitH);
+
+                intentLog.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLog);
+            }
+        });
+
+
     }
 
 
