@@ -207,6 +207,7 @@ public final class ViewfinderView extends View {
                         //POINT_SIZE, paint);
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE, paint);
+                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 400, 200, paint);
 
                         //canvas.drawCircle(
                         //        (960 - frameLeft + (int) (point.getX())) / 2,
@@ -239,6 +240,9 @@ public final class ViewfinderView extends View {
 
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE * 2, paint);
+
+                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 400, 600, paint);
+
                     }
                 }
             }
