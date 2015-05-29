@@ -21,14 +21,14 @@ public class ResultActivity extends Activity {
     public static final String BITMAPSTR = "bitmapstr";
     public static final String BITMAPW = "bitmapw";
     public static final String BITMAPH = "bitmaph";
-    public static final String LOG= "log";
+    public static final String LOG = "log";
 
     //String bitStr= "";
-    public static String bitW = "";
-    public static String bitH = "";
-    public static String bitStr= "";
-    public static String sFormat = "";
-    public static String resultStr = "";
+    private static String bitW = "";
+    private static String bitH = "";
+    private static String bitStr= "";
+    private static String sFormat = "";
+    private static String resultStr = "";
 
     String ss = "";
     String s2 = "";

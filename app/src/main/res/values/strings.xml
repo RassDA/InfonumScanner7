@@ -5,4 +5,5 @@
     </string>
     <string name="button_txt">Отправить извещение</string>
     <string name="site">http://infonum.ru/</string>
+    <string name="butt_log_txt">LOG</string>
 </resources>

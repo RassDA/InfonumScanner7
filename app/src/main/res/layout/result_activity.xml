@@ -5,18 +5,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Log"
-        android:id="@+id/buttonLog"
-        android:clickable="true"
-        android:onClick="onCkickLog" />
-
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="238dp"
-        android:id="@+id/scrollView" >
+        android:layout_height="0dp"
+        android:id="@+id/scrollView"
+        android:layout_weight="1"
+        android:background="#ff5bff3b">
 
         <EditText
             android:layout_width="match_parent"
@@ -25,5 +19,13 @@
             android:editable="true" />
 
     </ScrollView>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/butt_log_txt"
+        android:id="@+id/buttonLog"
+        android:clickable="true"
+        android:background="#4b57cc1b" />
 
 </LinearLayout>
