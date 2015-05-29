@@ -127,8 +127,8 @@ public final class ViewfinderView extends View {
 
         // Получаем координаты центрального половинного фрейма
 
-        Rect frame = new Rect(0, 0, width, height);
-        //--Rect frame = getFramingRect();
+        //Rect frame = new Rect(0, 0, width, height);
+        Rect frame = getFramingRect();
 
         // Затемняем обрамление.
         canvas.drawColor(resultBitmap != null ? resultColor : maskColor);
@@ -195,6 +195,7 @@ public final class ViewfinderView extends View {
                 paint.setAlpha(CURRENT_POINT_OPACITY);
                 paint.setColor(resultColor2);
 
+                //TODO разобраться с синхронизацией
                 synchronized (currentPossible) {
                     for (ResultPoint point : currentPossible) {
                         //  только для первого раза
@@ -207,7 +208,7 @@ public final class ViewfinderView extends View {
                         //POINT_SIZE, paint);
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE, paint);
-                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 400, 200, paint);
+                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 700, 200, paint);
 
                         //canvas.drawCircle(
                         //        (960 - frameLeft + (int) (point.getX())) / 2,
@@ -241,7 +242,7 @@ public final class ViewfinderView extends View {
                         canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
                                 POINT_SIZE * 2, paint);
 
-                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 400, 600, paint);
+                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 700, 400, paint);
 
                     }
                 }
