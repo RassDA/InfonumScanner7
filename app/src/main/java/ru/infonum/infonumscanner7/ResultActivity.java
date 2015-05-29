@@ -266,7 +266,6 @@ public class ResultActivity extends Activity {
             }
         });
 
-
     }
 
 

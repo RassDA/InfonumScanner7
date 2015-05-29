@@ -76,7 +76,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // после разблокировки картинка больше не обновляется.
         super.onResume();
         camera = open();
-        vfv.setCamera(camera);
+        ViewfinderView.setCamera(camera);
         currKey = System.currentTimeMillis();  // сохраняем текущее время
         outStr += "camera.open" + "\n";
     }
@@ -215,7 +215,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
 //640.480
                 // на каждом кадре с камеры пересчитываем фрейм - надо?
                 // определяет область распознавания?
-                Rect rect = vfv.getFramingRectInPreview();
+                Rect rect = CalcRect.getFramingRectInPreview();
                 //outStr += "vfv.getFramingRectInPreview " + rect + "\n";
 
                 // ищет маркеры только в превью камеры
