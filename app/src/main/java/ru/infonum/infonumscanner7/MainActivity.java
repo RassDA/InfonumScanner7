@@ -1,6 +1,7 @@
 package ru.infonum.infonumscanner7;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
@@ -50,11 +51,12 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
     private String TAG = MainActivity.class.getSimpleName();
     private long currKey;
     private final int AUTOFOCUS_DELAY = 2000; // 2000 - период принудительного перезапуска автофокуса
+    Context context;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        context = getApplicationContext();
         // экран переводим в горизонт, полный экран, без заголовка
         // установка параметров должна идти перед setContentView
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);

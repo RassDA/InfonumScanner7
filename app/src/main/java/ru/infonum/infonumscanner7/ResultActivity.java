@@ -249,7 +249,7 @@ public class ResultActivity extends Activity {
 
         buttonLog.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Intent intentLog = new Intent(getBaseContext(), LogActivity.class);
+                Intent intentLog = new Intent(ResultActivity.this, LogActivity.class);
 
                 intentLog.putExtra(ResultActivity.LOG, ss);
 
