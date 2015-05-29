@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,8 +39,8 @@ public class ResultActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.result_activity);
 
-        //EditText tw = (EditText) findViewById(R.id.textView);
-        //tw.setGravity(Gravity.CENTER);
+        EditText tw = (EditText) findViewById(R.id.textView);
+        tw.setGravity(Gravity.CENTER);
         //tw.setTextSize(20);
 
         Intent intent = getIntent();
@@ -238,6 +239,7 @@ public class ResultActivity extends Activity {
             //ss += "\n" + bitStr;
 
             //tw.setText(ss);
+            tw.setText(resultStr);
 
         }
 

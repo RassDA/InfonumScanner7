@@ -127,8 +127,8 @@ public final class ViewfinderView extends View {
 
         // Получаем координаты центрального половинного фрейма
 
-        //Rect frame = new Rect(0, 0, width, height);
-        Rect frame = getFramingRect();
+        Rect frame = new Rect(0, 0, width, height);
+        //Rect frame = getFramingRect();
 
         // Затемняем обрамление.
         canvas.drawColor(resultBitmap != null ? resultColor : maskColor);
@@ -141,11 +141,7 @@ public final class ViewfinderView extends View {
 
         // пишем разрешение и др. на экран
         paint.setTextSize(60);
-        String s = "";
-        s += width + " " + height + " " + rad;
-        canvas.drawText(s, 100, 100, paint);
-        //canvas.drawText(outStr, 0, 0, paint);
-
+        canvas.drawText(width + " " + height + " " + rad, 100, 100, paint);
 
         if (resultBitmap != null) {
             // Рисуем непрозрачным получившийся битмап поверх прямоугольника для сканирования
