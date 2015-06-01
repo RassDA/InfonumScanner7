@@ -133,11 +133,13 @@ public final class ViewfinderView extends View {
         // Затемняем обрамление.
         canvas.drawColor(resultBitmap != null ? resultColor : maskColor);
 
-        // для правильного рисования прозрачного круга: PorterDuff.Mode.DST_OUT.
+        // для правильного рисования прозрачного круга использовать: PorterDuff.Mode.DST_OUT.
         paint.setXfermode(xfermode);
 
         int rad = Math.min(width, height / 3);
         canvas.drawCircle(width / 2, height / 2, rad, paint);
+
+        canvas.drawCircle(width / 10, height / 2, width / 20, paint);
 
         // пишем разрешение и др. на экран
         paint.setTextSize(60);
