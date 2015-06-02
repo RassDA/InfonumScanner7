@@ -58,8 +58,8 @@ public final class ViewfinderView extends View {
     private static final int MAX_RESULT_POINTS = 20;
     private static final int POINT_SIZE = 12; //def=6 - диаметр жетых точек при распознавании
 
-    private static final int MIN_FRAME_WIDTH = 240;
-    private static final int MIN_FRAME_HEIGHT = 240;
+    private static final int MIN_FRAME_WIDTH = 240; // = 480/2
+    private static final int MIN_FRAME_HEIGHT = 240; // = 480/2
     private static final int MAX_FRAME_WIDTH = 960; // = 1920/2
     private static final int MAX_FRAME_HEIGHT = 540; // = 1080/2
 
@@ -102,8 +102,8 @@ public final class ViewfinderView extends View {
     }
 
     public void setCamera(Camera camera) {
-    this.camera = camera;
-  }
+        this.camera = camera;
+    }
 
     @Override
     public void onDraw(Canvas canvas) {
@@ -112,6 +112,7 @@ public final class ViewfinderView extends View {
          *  На экране рисуются:
          *  - превью с камеры, приведенное к размеру экрана
          *  - поверх - затемняющая рамка, оставляющая светлый прямоугольник в центре
+         *  - RassDA upd.                             светлый круг
          *  - поверх - лазерные точки в местах распознания маркеров куэра
          *
          *  Видимо, координаты точек передаются в системе матрицы камеры.
@@ -127,10 +128,10 @@ public final class ViewfinderView extends View {
 
         // Получаем координаты центрального половинного фрейма
 
-        Rect frame = new Rect(0, 0, width, height);
-        //Rect frame = getFramingRect();
+        //Rect frame = new Rect(0, 0, width, height);
+        Rect frame = getFramingRect();
 
-        // Затемняем обрамление.
+        // Затемняем обрамление. - не понятно, зачем два цвета?
         canvas.drawColor(resultBitmap != null ? resultColor : maskColor);
 
         // для правильного рисования прозрачного круга использовать: PorterDuff.Mode.DST_OUT.
@@ -139,9 +140,10 @@ public final class ViewfinderView extends View {
         int rad = Math.min(width, height / 3);
         canvas.drawCircle(width / 2, height / 2, rad, paint);
 
-        canvas.drawCircle(width / 10, height / 2, width / 20, paint);
+        //эксперимент - отрисовка положения объектива камеры
+        //canvas.drawCircle(width / 10, height / 2, width / 20, paint);
 
-        // пишем разрешение и др. на экран
+        // пишем текстом разрешение и др. на экран
         paint.setTextSize(60);
         canvas.drawText(width + " " + height + " " + rad, 100, 100, paint);
 
@@ -163,6 +165,7 @@ public final class ViewfinderView extends View {
 
             if (done) {
                 //TODO сделать нормальную отрисовку эмблемы вместо круга сканирования
+                // - через переменную может работать
                 // неправильно
                 //canvas.drawColor(Color.GREEN);
                 //canvas.drawCircle(width / 2, height / 2, rad, paint);
@@ -204,9 +207,10 @@ public final class ViewfinderView extends View {
                         //canvas.drawCircle(frameLeft - (int) (point.getX() * scaleX),
                         //frameTop - (int) (point.getY() * scaleY),
                         //POINT_SIZE, paint);
-                        canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
-                                POINT_SIZE, paint);
-                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 700, 200, paint);
+
+                        //--canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
+                        //--        POINT_SIZE, paint);
+                        //--canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 700, 200, paint);
 
                         //canvas.drawCircle(
                         //        (960 - frameLeft + (int) (point.getX())) / 2,
@@ -237,10 +241,11 @@ public final class ViewfinderView extends View {
                         //      (int) (frameTop + point.getY() * scaleY),
                         //      radius, paint);
 
-                        canvas.drawCircle((int) (width / 2 + point.getX()), (int) (height / 2 + point.getY()),
+                        canvas.drawCircle(point.getX(), point.getY(),
                                 POINT_SIZE * 2, paint);
 
-                        canvas.drawText("" + (int)point.getX() + " " + (int)point.getY(), 700, 400, paint);
+                        canvas.drawText("" + point.getX(), 600, 450, paint);
+                        canvas.drawText("" + point.getY(), 600, 530, paint);
 
                     }
                 }
@@ -258,10 +263,8 @@ public final class ViewfinderView extends View {
         }
     }
 
+    public static void drawBlackBitmap(BinaryBitmap blackBitmap) {}
 
-    public static void drawBlackBitmap(BinaryBitmap blackBitmap) {
-
-    }
     public void addPossibleResultPoint(ResultPoint point) {
         /*  Управляет стеком точек.
          *
@@ -280,6 +283,7 @@ public final class ViewfinderView extends View {
             }
         }
     }
+
     public synchronized Rect getFramingRectInPreview() {
         /* Зачем-то ??? возвращает размеры растянутого половинного центрального фрейма,
          * растянутого по каждой стороне на отношение
@@ -324,10 +328,10 @@ public final class ViewfinderView extends View {
             double yCamToScreen  = (double)cameraResolution.y / (double)screenResolution.y;
 //720:540=
 // 240,135-720,405
-            //rect.left = (int)(rect.left * xCamToScreen);
-            //rect.top = (int)(rect.top * yCamToScreen);
-            //rect.right = (int)(rect.right * xCamToScreen);
-            //rect.bottom = (int)(rect.bottom * yCamToScreen);
+            rect.left = (int)(rect.left * xCamToScreen);
+            rect.top = (int)(rect.top * yCamToScreen);
+            rect.right = (int)(rect.right * xCamToScreen);
+            rect.bottom = (int)(rect.bottom * yCamToScreen);
 //320.180-960.540
             outStr += "rect " + rect + "\n";
 
@@ -363,16 +367,29 @@ public final class ViewfinderView extends View {
             }
             // подсчитываем и проверяем размеры фрейма, чтобы он был в два раза меньше экрана по каждому измерению,
             // но не слишком большим или маленьким
-            int width = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
-            int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
-            outStr += "Desired.w.h " + width + "*" + height + "\n";
+            int frameWidth = findDesiredDimensionInRange(screenResolution.x, MIN_FRAME_WIDTH, MAX_FRAME_WIDTH);
+            int frameHeight = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
+            outStr += "Desired.w.h " + frameWidth + "*" + frameHeight + "\n";
+
+            //++RassDA
+            int leftOffset = 0;
+            int topOffset = 0;
+            if (screenResolution.x > frameWidth + 1){
+                leftOffset = (int)((screenResolution.x - frameWidth) / 2);
+            }
+            if (screenResolution.y > frameHeight + 1){
+                topOffset = (int)((screenResolution.y - frameHeight) / 2);
+            }
+            //+++
+
+
 
             // Смещение фрейма, чтобы он находился точно в центре экрана
-            int leftOffset = (screenResolution.x - width) / 2;
-            int topOffset = (screenResolution.y - height) / 2;
+            //--int leftOffset = (screenResolution.x - width) / 2;
+            //--int topOffset = (screenResolution.y - height) / 2;
             outStr += "Offset.left.top " + leftOffset  + "*" +  topOffset + "\n";
 
-            framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
+            framingRect = new Rect(leftOffset, topOffset, leftOffset + frameWidth, topOffset + frameHeight);
 
             //--- можем сделать фрейм вовесь экран
             //framingRect = new Rect(0, 0, screenResolution.x, screenResolution.y);
@@ -391,7 +408,7 @@ public final class ViewfinderView extends View {
          * Если меньше или больше - используются пределы.
          */
 
-        int dim = resolution / 2; // Target 50% of each dimension
+        int dim = 5 * resolution / 8; // Target 5/8 of each dimension
         if (dim < hardMin) {
             return hardMin;
         }
@@ -450,19 +467,23 @@ public final class ViewfinderView extends View {
          *
          */
 
-        List<Camera.Size> rawSupportedSizes = parameters.getSupportedPreviewSizes();
-        if (rawSupportedSizes == null) {
+        List<Camera.Size> nSupportedSizes = parameters.getSupportedPreviewSizes();
+        if (nSupportedSizes == null) {
             // При невозможности определения использует значения по-умолчанию.
             Log.w(TAG, "Устройство не возвращает размеры поддерживаемых превью; используем умолчания");
             outStr += "Устройство не возвращает размеры поддерживаемых превью; используем умолчания" + "\n";
 
             Camera.Size defaultSize = parameters.getPreviewSize();
+            if (defaultSize == null) {
+                throw new IllegalStateException("Parameters contained no preview size!");
+            }
             outStr += "Camera.Size: " + defaultSize + "\n";
             return new Point(defaultSize.width, defaultSize.height);
         }
 
         // Сортитуем разрешения в списке по убыванию количества пикселов
-        List<Camera.Size> supportedPreviewSizes = new ArrayList<Camera.Size>(rawSupportedSizes);
+        // создаем список длиной, равной количеству поддерживаемых разрешений превью
+        List<Camera.Size> supportedPreviewSizes = new ArrayList<Camera.Size>(nSupportedSizes);
         Collections.sort(supportedPreviewSizes, new Comparator<Camera.Size>() {
             @Override
             public int compare(Camera.Size a, Camera.Size b) {
@@ -477,6 +498,7 @@ public final class ViewfinderView extends View {
                 return 0;
             }
         });
+
         // преобразуем список разрешений превью в строку, только чтобы показать их в логе
         if (Log.isLoggable(TAG, Log.INFO)) {
             StringBuilder previewSizesString = new StringBuilder();
@@ -488,12 +510,13 @@ public final class ViewfinderView extends View {
             outStr += "Поддерживаемые размеры превью: " + previewSizesString + "\n";
 
         }
-        // Далее, выбираем наиболее подходящее из списка.
+        // Далее, выбираем наиболее подходящее из отсортированного списка.
 
         // Здесь будем сохранять разрешение с пропорциями, наименее отличающимися от разрешения экрана
         Point bestSize = null;
         // Определяем физическое разрешение экрана и соотношение его сторон
         Point screenResolution = getScreenResolution();
+
         float screenAspectRatio = (float) screenResolution.x / (float) screenResolution.y;
         outStr += "screenAspectRatio " + screenAspectRatio + "\n";
 
