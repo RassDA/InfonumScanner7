@@ -204,7 +204,7 @@ public final class ViewfinderView extends View {
                         // левая граница фрейма + координата точки с поправкой
                         // на разницу сторон матрицы и экрана
 
-                        //canvas.drawCircle(frameLeft - (int) (point.getX() * scaleX),
+                        // canvas.drawCircle(frameLeft - (int) (point.getX() * scaleX),
                         //frameTop - (int) (point.getY() * scaleY),
                         //POINT_SIZE, paint);
 
@@ -303,15 +303,18 @@ public final class ViewfinderView extends View {
 //240,135-720,405
             // создаем еще один такой же половинный в центре
             Rect rect = new Rect(framingRect);
-            // получаем от камеры все ее параметры и передаем в функцию,
-            // которая сама берет оттуда список разрешений ее превью
-            // и возвращает наиболее близкое к пропорциям экрана.
+            // Получаем от камеры все ее параметры и передаем в функцию,
+            //   которая сама берет оттуда список разрешений ее превью
+            //   и возвращает наиболее близкое к пропорциям экрана, с количеством пикселов,
+            //   лежащим в заданных пределах. Иначе, возвращает размер превью по-умолчанию.
+            // Если и его нет - выкидывает исключение.
             Point cameraResolution = findBestPreviewSizeValue(camera.getParameters());
             outStr += "cameraResolution " + cameraResolution + "\n";
 //1280,720
             // получаем разрешение экрана в сравнимом формате
             Point screenResolution = getScreenResolution();
 //960,540
+            // если камера или экран несмогли вернуть свои параметры
             if (cameraResolution == null || screenResolution == null) {
                 // вызвали слишком рано, еще не инициализировались
                 return null;
@@ -372,6 +375,7 @@ public final class ViewfinderView extends View {
             outStr += "Desired.w.h " + frameWidth + "*" + frameHeight + "\n";
 
             //++RassDA
+            // если не проверять, координаты могут стать отрицательными
             int leftOffset = 0;
             int topOffset = 0;
             if (screenResolution.x > frameWidth + 1){
@@ -382,8 +386,7 @@ public final class ViewfinderView extends View {
             }
             //+++
 
-
-
+            // Заменено RassDA
             // Смещение фрейма, чтобы он находился точно в центре экрана
             //--int leftOffset = (screenResolution.x - width) / 2;
             //--int topOffset = (screenResolution.y - height) / 2;
@@ -429,7 +432,7 @@ public final class ViewfinderView extends View {
         int height = display.getHeight(); //deprecated
         outStr += "Display.w.h " + width + "*" + height + "\n";
 
-        //Point point = null; // в таком виде замена deprecated вызывает падение
+        //Point point = new Point; // в таком виде замена deprecated вызывает падение
         //display.getSize(point);
         //int height = point.y;
         //int width = point.x;

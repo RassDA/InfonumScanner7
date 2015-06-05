@@ -115,7 +115,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         // Взяли размер превью, установленный по-умолчанию, хотя их там список
         // Только для вычисления соотношение сторон превью камеры для этого конкретного превью?
         Size camPreviewSize = camera.getParameters().getPreviewSize();
-        double aspectCamPreview = (double) camPreviewSize.width / camPreviewSize.height;
+        double aspectCamPreview = (double) (camPreviewSize.width / camPreviewSize.height);
 //640,480 = 1.3
 
         // параметры поверхности от SurfaceView, которая выбрана для отображения превью камеры
@@ -124,6 +124,8 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Pr
         surfaceParams.width = previewSurface.getWidth();
         surfaceParams.height = (int) (surfaceParams.width / aspectCamPreview);
 
+        //Сохраняем параметры камеры. Единственное место.
+        // Вычисленный лучший размер превью не устанавливается?
         previewSurface.setLayoutParams(surfaceParams);
 //960,720
 
